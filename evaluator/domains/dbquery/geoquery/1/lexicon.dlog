@@ -1,0 +1,7 @@
+_include('../../general/lexicon.dlog').
+
+_lex('-BRIDGE-', ['loc/2', 'hasInhabitant/2', 'next_to/2', 'traverse/2']).
+
+_include('lexicon0.dlog') :- lexMode(0).
+_include('lexicon1.dlog') :- lexMode(1).
+_include('lexicon2.dlog') :- lexMode(2).

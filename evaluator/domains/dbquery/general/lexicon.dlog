@@ -1,0 +1,46 @@
+%%% Quantification
+_lex(['no', 'not', 'dont', 'doesnt', 'outside', 'exclude'], 'not/3').
+_lex(['each', 'every'], 'every/3').
+
+% Extensions
+extAction('.').
+extUnion('.').
+
+_lex('-BRIDGE-', ['fracQuant/3', 'countQuant/3'])         :- extAction(1). % Generalized quantification: 30% of the cities | 3 cities
+_lex('-BRIDGE-', ['fracTopRanked/2', 'countTopRanked/2']) :- extAction(1). % Generalized quantification: 30% of the largest cities | 3 largest cities
+_lex(['fraction', 'percent'], 'fracQuant/3').
+
+%%% Superlatives
+_lex('most', 'argmax/4').
+_lex(['least', 'most few'], 'argmin/4').
+
+_lex(['count', 'number', 'many'], 'count/2').
+
+_lex(['large', 'high', 'great'], 'affirm/2').
+_lex(['small', 'low'], 'negate/2').
+
+_lex(['sum', 'combined', 'total'], 'sum/2').
+_lex(['average'], 'mean/2').
+_lex('minimum', 'min/2').
+_lex('maximum', 'max/2').
+
+%%% Comparison
+_lex('less', 'compareLess/3').
+_lex('more', 'compareMore/3').
+_lex(['at most', 'no more'], 'compareLess/3').
+_lex(['at least', 'no less'], 'compareMore/3').
+
+_lex(['and', 'or', ','], 'union/3') :- extUnion(1). % Conjunction
+_lex(['called', 'named'], 'nameObj/2').
+
+%%% Units
+_lex(['%', 'percent'], 'percent/2').
+_lex('rank', 'rank/2').
+
+_lex('meter/N', 'meter/2').
+_lex('kilometer/N', 'kilometer/2').
+_lex('squared kilometer/N', 'squared_kilometer/2').
+_lex('foot/N', 'foot/2').
+_lex('mile/N', 'mile/2').
+_lex('squared mile/N', 'squared_mile/2').
+_lex('year/N', 'year/2').

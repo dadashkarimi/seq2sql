@@ -1,0 +1,66 @@
+_stdPred('false1').
+
+% Comparison
+_stdPred('affirm').
+_stdPred('negate').
+_stdPred('count').
+
+% Quantification
+_stdPred('not').
+_stdPred('every').
+_stdPred('fracQuant').
+_stdPred('countQuant').
+_stdPred('fracTopRanked').
+_stdPred('countTopRanked').
+
+_stdPred('union'). % Disjunction
+
+% Units
+_stdPred('rank').
+_stdPred('percent').
+
+_stdPred('argmax').
+_stdPred('argmin').
+_stdPred('min').
+_stdPred('max').
+_stdPred('mean').
+_stdPred('sum').
+
+%%% Creating random worlds
+_stdPred('intRange').
+_stdPred('rand1').
+_stdPred('rand2').
+_stdPred('randInt1').
+_stdPred('randInt2').
+
+%%% Utilities
+_stdPred('num2str').
+_stdPred('concat').
+_stdPred('member').
+_stdPred('startsWith').
+
+_stdPred('add').
+_stdPred('sub').
+_stdPred('mul').
+_stdPred('div').
+
+_stdPred('lessThan').
+_stdPred('moreThan').
+_stdPred('lessThanEq').
+_stdPred('moreThanEq').
+_stdPred('between').
+_stdPred('equals').
+
+_stdPred('compareLess').
+_stdPred('compareMore').
+_stdPred('compareLessEq').
+_stdPred('compareMoreEq').
+
+% Units
+_stdPred('meter').
+_stdPred('kilometer').
+_stdPred('squared kilometer','squared_kilometer').
+_stdPred('foot').
+_stdPred('mile').
+_stdPred('squared mile','squared_mile').
+_stdPred('year').

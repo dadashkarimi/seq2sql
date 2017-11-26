@@ -1,0 +1,121 @@
+/*
+Subset of the original Prolog file for defining the appropriate predicates.
+Note that new rules are added to make a more complete database.
+*/
+
+_constructPred('cityid',2).
+_constructPred('stateid',1).
+_constructPred('countryid',1).
+_constructPred('mountainid',1).
+_constructPred('riverid',1).
+_constructPred('lakeid',1).
+_constructPred('placeid',1).
+_constructPred('person',0).
+
+_include('../../general/predicates.dlog').
+_include('geobase.dlog').
+
+_stdPred('equals', 'const').
+
+% Add combinations of types that do not appear in the database but do in the data.
+traverse(riverid('colorado'), cityid('austin','tx')). % rivers can traverse cities
+high_point(stateid('district of columbia'), cityid('tenleytown', 'dc')).
+area(cityid('seattle','wa'), squared_kilometer(369.2)).
+loc(placeid('mount davidson'), cityid('san francisco','ca')). elevation(placeid('mount davidson'), meter(282)).
+
+country(countryid(usa)).
+
+state(stateid(State)) :- state(State,_,_,_,_,_,_,_,_,_).
+
+city(cityid(City,St)) :- state(State,St,_,_,_,_,City,_,_,_). loc(cityid(City,St),stateid(State)) :- state(State,St,_,_,_,_,City,_,_,_). % NEW
+city(cityid(City,St)) :- state(State,St,_,_,_,_,_,City,_,_). loc(cityid(City,St),stateid(State)) :- state(State,St,_,_,_,_,_,City,_,_). % NEW
+city(cityid(City,St)) :- state(State,St,_,_,_,_,_,_,City,_). loc(cityid(City,St),stateid(State)) :- state(State,St,_,_,_,_,_,_,City,_). % NEW
+city(cityid(City,St)) :- state(State,St,_,_,_,_,_,_,_,City). loc(cityid(City,St),stateid(State)) :- state(State,St,_,_,_,_,_,_,_,City). % NEW
+city(cityid(City,St)) :- city(_,St,City,_).
+
+river(riverid(R)) :- river(R,_,_). 
+lake(lakeid(R)) :- lake(R,_,_). 
+mountain(mountainid(M)) :- mountain(_,_,M,_). 
+
+place(placeid(P)) :- highlow(_,_,P,_,_,_).
+place(placeid(P)) :- highlow(_,_,_,_,P,_).
+
+capital(stateid(State),cityid(Cap,St)) :- state(State,St,Cap,_,_,_,_,_,_,_).
+capital(Cap) :- capital(_,Cap).
+
+loc(X,countryid(usa)) :- city(X) ; state(X) ; river(X) ; place(X) ; lake(X); mountain(X).
+loc(cityid(City,St),stateid(State)) :- city(State,St,City,_).
+loc(cityid(City,St),stateid(State)) :- state(State,St,City,_,_,_,_,_,_,_).
+loc(placeid(P),stateid(S)) :- highlow(S,_,P,_,_,_).
+loc(placeid(P),stateid(S)) :- highlow(S,_,_,_,P,_).
+loc(mountainid(P),stateid(S)) :- mountain(S,_,P,_).
+loc(riverid(R),stateid(S)) :- river(R,_,States), member(S,States).
+loc(lakeid(L),stateid(S)) :- lake(L,_,States), member(S,States).
+
+traverse(riverid(R),stateid(S)) :- river(R,_,States), member(S,States).
+traverse(riverid(R),countryid(usa)) :- river(R,_,_).
+next_to(R,S) :- traverse(R,S). % NEW (assume traversing is same as next to)
+
+high_point(countryid(usa),placeid('mount mckinley')).
+high_point(stateid(S),placeid(P)) :- highlow(S,_,P,_,_,_).
+
+low_point(countryid(usa),placeid('death valley')).
+low_point(stateid(S),placeid(P)) :- highlow(S,_,_,_,P,_).
+
+area(stateid(X),squared_mile(Area)) :- state(X,_,_,_,Area,_,_,_,_,_).
+area(countryid(X),squared_kilometer(Area)) :- country(X,_,Area).
+
+population(countryid(X),Pop) :- country(X,Pop,_).
+population(stateid(X),Pop) :- state(X,_,_,Pop,_,_,_,_,_,_).
+population(cityid(X,St),Pop) :- city(_,St,X,Pop).
+
+len(riverid(R),kilometer(L)) :- river(R,L,_).
+area(lakeid(L),squared_kilometer(A)) :- lake(L,A,_).
+
+elevation(placeid(P),meter(E)) :- highlow(_,_,_,_,P,E).
+elevation(placeid(P),meter(E)) :- highlow(_,_,P,E,_,_).
+elevation(mountainid(P),meter(E)) :- mountain(_,_,P,E).
+
+size(X,S) :- state(X), area(X,S).
+size(X,S) :- city(X), population(X,S).
+size(X,S) :- river(X), len(X,S).
+size(X,S) :- lake(X), area(X,S).
+size(X,S) :- place(X), elevation(X,S).
+%size(X,S) :- mountain(X), elevation(X,S). % NEW
+
+major(X) :- city(X), population(X,moreThan(150000)).
+major(X) :- river(X), len(X,moreThan(kilometer(750))).
+major(X) :- lake(X), area(X,moreThan(squared_kilometer(5000))).
+	
+next_to(stateid(X),stateid(Y)) :- border(X,_,Ys), member(Y,Ys).
+next_to(X,Y) :- next_to(Y,X).
+
+density(S,div(P,A)) :- population(S,P), area(S,A).
+
+% Need these not for parsing, but for computing the correct answers.
+higher(X,Y) :- elevation(X,EX), elevation(Y,EY), moreThan(EX, EY).
+lower(X,Y) :- elevation(X,EX), elevation(Y,EY), moreThan(EX, EY).
+longer(X,Y) :- len(X,LX), len(Y,LY), moreThan(LX, LY).
+shorter(X,Y) :- len(X,LX), len(Y,LY), lessThan(LX, LY).
+
+_expandPred('population', 'hasInhabitant', 'person').
+
+negSize(X,negate(Y)) :- size(X,Y).
+negLen(X,negate(Y)) :- len(X,Y).
+negElevation(X,negate(Y)) :- elevation(X,Y).
+negDensity(X,negate(Y)) :- density(X,Y).
+negPopulation(X,negate(Y)) :- population(X,Y).
+negArea(X,negate(Y)) :- area(X,Y).
+
+loc(X) :- loc(X,_) ; loc(_,X).
+
+% Map name to object
+nameObj(N,X) :- city(X),cityid(N,_,X).
+nameObj(N,X) :- state(X),stateid(N,X).
+nameObj(N,X) :- river(X),riverid(N,X).
+nameObj(N,X) :- lake(X),lakeid(N,X).
+nameObj(N,X) :- place(X),placeid(N,X).
+nameObj(N,X) :- mountain(X),mountainid(N,X).
+nameObj(N,X) :- country(X),countryid(N,X).
+
+%nameObj(N,X) :- city(C),cityid(_,N,C),loc(C,X),state(X). % State abbreviations - causing too much trouble

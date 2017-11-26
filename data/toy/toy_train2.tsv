@@ -1,0 +1,2 @@
+what is the highest point in florida ?	_answer ( A , _highest ( A , ( _place ( A ) , _loc ( A , B ) , _const ( B , _stateid ( florida ) ) ) ) )
+what state has the shortest river ?	_answer ( A , ( _state ( A ) , _loc ( B , A ) , _shortest ( B , _river ( B ) ) ) )

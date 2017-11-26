@@ -1,0 +1,280 @@
+_parse([which,state,is,the,smallest,?], answer(A,smallest(A,state(A)))).
+_parse([which,is,the,longest,river,in,usa,?], answer(A,longest(A,(river(A),loc(A,B),const(B,countryid(usa)))))).
+_parse([what,are,the,highest,points,of,all,the,states,?], answer(A,highest(A,(place(A),loc(A,B),state(B))))).
+_parse([what,are,the,major,rivers,in,ohio,?], answer(A,(major(A),river(A),loc(A,B),const(B,stateid(ohio))))).
+_parse([name,the,major,rivers,in,florida,?], answer(A,(major(A),river(A),loc(A,B),const(B,stateid(florida))))).
+_parse([what,is,the,population,of,erie,pennsylvania,?], answer(A,(population(B,A),const(B,cityid(erie,pa))))).
+_parse([what,state,has,the,lowest,population,density,?], answer(A,smallest(B,(state(A),density(A,B))))).
+_parse([where,is,the,smallest,city,?], answer(A,(loc(B,A),smallest(B,city(B))))).
+_parse([which,rivers,run,through,states,that,border,the,state,with,the,capital,austin,?], answer(A,(river(A),traverse(A,B),state(B),next_to(B,C),state(C),loc(D,C),capital(D),const(D,cityid(austin,_))))).
+_parse([what,is,the,lowest,point,in,massachusetts,?], answer(A,lowest(A,(place(A),loc(A,B),const(B,stateid(massachusetts)))))).
+_parse([what,is,the,population,of,maryland,?], answer(A,(population(B,A),const(B,stateid(maryland))))).
+_parse([what,states,does,the,mississippi,river,run,through,?], answer(A,(state(A),const(B,riverid(mississippi)),river(B),traverse(B,A)))).
+_parse([where,is,portland,?], answer(A,(loc(B,A),const(B,cityid(portland,_))))).
+_parse([what,are,the,cities,in,states,through,which,the,mississippi,runs,?], answer(A,(city(A),loc(A,B),state(B),traverse(C,B),const(C,riverid(mississippi))))).
+_parse([how,many,people,live,in,houston,?], answer(A,(population(B,A),const(B,cityid(houston,_))))).
+_parse([what,are,the,populations,of,states,through,which,the,mississippi,river,runs,?], answer(A,(population(B,A),state(B),const(C,riverid(mississippi)),river(C),traverse(C,B)))).
+_parse([what,states,does,the,ohio,river,run,through,?], answer(A,(state(A),const(B,riverid(ohio)),river(B),traverse(B,A)))).
+_parse([which,state,has,the,most,population,?], answer(A,largest(B,(state(A),population(A,B))))).
+_parse([what,states,surround,kentucky,?], answer(A,(state(A),next_to(A,B),const(B,stateid(kentucky))))).
+_parse([what,is,the,capital,of,north,dakota,?], answer(A,(capital(A),loc(A,B),const(B,stateid('north dakota'))))).
+_parse([how,many,cities,are,there,in,the,united,states,?], answer(A,count(B,(city(B),loc(B,C),const(C,countryid(usa))),A))).
+_parse([what,is,the,largest,capital,city,in,the,usa,?], answer(A,largest(A,(capital(A),city(A),loc(A,B),const(B,countryid(usa)))))).
+_parse([what,are,the,populations,of,states,which,border,texas,?], answer(A,(population(B,A),state(B),next_to(B,C),const(C,stateid(texas))))).
+_parse([what,is,the,capital,of,states,that,have,cities,named,durham,?], answer(A,(capital(A),loc(A,B),state(B),loc(C,B),city(C),const(C,cityid(durham,_))))).
+_parse([what,is,the,biggest,city,in,kansas,?], answer(A,largest(A,(city(A),loc(A,B),const(B,stateid(kansas)))))).
+_parse([what,is,the,population,of,boulder,?], answer(A,(population(B,A),const(B,cityid(boulder,_))))).
+_parse([which,state,has,the,greatest,population,?], answer(A,largest(B,(state(A),population(A,B))))).
+_parse([what,is,the,population,of,houston,?], answer(A,(population(B,A),const(B,cityid(houston,_))))).
+_parse([how,many,states,are,there,?], answer(A,count(B,state(B),A))).
+_parse([what,states,border,the,state,with,the,smallest,area,?], answer(A,(state(A),next_to(A,B),smallest(C,(state(B),area(B,C)))))).
+_parse([what,is,the,longest,river,that,flows,through,a,state,that,borders,indiana,?], answer(A,longest(A,(river(A),traverse(A,B),state(B),next_to(B,C),const(C,stateid(indiana)))))).
+_parse([what,states,border,the,most,populous,state,?], answer(A,(state(A),next_to(A,B),largest(C,(population(B,C),state(B)))))).
+_parse([what,is,the,largest,city,in,california,?], answer(A,largest(A,(city(A),loc(A,B),const(B,stateid(california)))))).
+_parse([what,is,the,longest,river,in,the,states,that,border,nebraska,?], answer(A,longest(A,(river(A),loc(A,B),state(B),next_to(B,C),const(C,stateid(nebraska)))))).
+_parse([what,is,the,capital,of,new,jersey,?], answer(A,(capital(A),loc(A,B),const(B,stateid('new jersey'))))).
+_parse([which,state,has,the,most,major,cities,?], answer(A,most(A,B,(state(A),loc(B,A),major(B),city(B))))).
+_parse([how,many,colorado,rivers,are,there,?], answer(A,count(B,(const(B,riverid(colorado)),river(B)),A))).
+_parse([what,is,the,highest,elevation,in,the,united,states,?], answer(A,highest(A,(place(A),loc(A,B),const(B,countryid(usa)))))).
+_parse([how,many,people,live,in,the,biggest,city,in,new,york,state,?], answer(A,(population(B,A),largest(B,(city(B),loc(B,C),const(C,stateid('new york')),state(C)))))).
+_parse([what,are,the,capitals,of,states,that,border,missouri,?], answer(A,(capital(A),loc(A,B),state(B),next_to(B,C),const(C,stateid(missouri))))).
+_parse([what,is,the,length,of,the,river,that,runs,through,the,most,states,?], answer(A,(len(B,A),most(B,C,(river(B),traverse(B,C),state(C)))))).
+_parse([what,is,the,highest,point,in,the,state,with,capital,austin,?], answer(A,highest(A,(place(A),loc(A,B),state(B),loc(C,B),capital(C),const(C,cityid(austin,_)))))).
+_parse([what,state,has,the,largest,capital,?], answer(A,(state(A),loc(B,A),largest(B,capital(B))))).
+_parse([what,is,the,capital,of,massachusetts,?], answer(A,(capital(A),loc(A,B),const(B,stateid(massachusetts))))).
+_parse([what,states,border,new,jersey,?], answer(A,(state(A),next_to(A,B),const(B,stateid('new jersey'))))).
+_parse([what,states,border,states,that,the,ohio,runs,through,?], answer(A,(state(A),next_to(A,B),state(B),const(C,riverid(ohio)),traverse(C,B)))).
+_parse([which,state,has,the,highest,elevation,?], answer(A,highest(B,(state(A),loc(B,A),place(B))))).
+_parse([what,is,the,most,populous,state,through,which,the,mississippi,runs,?], answer(A,largest(B,(population(A,B),state(A),const(C,riverid(mississippi)),traverse(C,A))))).
+_parse([which,is,the,highest,peak,not,in,alaska,?], answer(A,highest(A,(mountain(A),\+ (loc(A,B),const(B,stateid(alaska))))))).
+_parse([what,state,has,the,most,major,cities,?], answer(A,most(A,B,(state(A),loc(B,A),major(B),city(B))))).
+_parse([what,states,have,cities,named,portland,?], answer(A,(state(A),loc(B,A),city(B),const(B,cityid(portland,_))))).
+_parse([what,is,the,highest,point,of,the,state,with,the,smallest,population,density,?], answer(A,highest(A,(place(A),loc(A,B),smallest(C,(state(B),density(B,C))))))).
+_parse([what,states,border,the,state,with,the,most,major,cities,?], answer(A,(state(A),next_to(A,B),most(B,C,(state(B),loc(C,B),major(C),city(C)))))).
+_parse([what,is,the,smallest,city,in,the,us,?], answer(A,smallest(A,(city(A),loc(A,B),const(B,countryid(usa)))))).
+_parse([what,is,the,population,of,hawaii,?], answer(A,(population(B,A),const(B,stateid(hawaii))))).
+_parse([what,states,border,indiana,?], answer(A,(state(A),next_to(A,B),const(B,stateid(indiana))))).
+_parse([how,many,states,are,in,the,usa,?], answer(A,count(B,(state(B),loc(B,C),const(C,countryid(usa))),A))).
+_parse([what,is,the,capital,of,illinois,?], answer(A,(capital(A),loc(A,B),const(B,stateid(illinois))))).
+_parse([what,river,traverses,the,state,which,borders,the,most,states,?], answer(A,(river(A),traverse(A,B),most(B,C,(state(B),next_to(B,C),state(C)))))).
+_parse([what,states,border,the,state,that,borders,the,most,states,?], answer(A,(state(A),next_to(A,B),most(B,C,(state(B),next_to(B,C),state(C)))))).
+_parse([how,long,is,the,colorado,river,?], answer(A,(len(B,A),const(B,riverid(colorado)),river(B)))).
+_parse([what,state,has,the,longest,river,?], answer(A,(state(A),loc(B,A),longest(B,river(B))))).
+_parse([which,states,border,kentucky,?], answer(A,(state(A),next_to(A,B),const(B,stateid(kentucky))))).
+_parse([give,me,the,states,that,border,utah,?], answer(A,(state(A),next_to(A,B),const(B,stateid(utah))))).
+_parse([what,is,the,capital,of,the,state,with,the,largest,population,density,?], answer(A,(capital(A),loc(A,B),largest(C,(state(B),density(B,C)))))).
+_parse([what,states,have,cities,named,plano,?], answer(A,(state(A),loc(B,A),city(B),const(B,cityid(plano,_))))).
+_parse([what,states,border,the,state,with,the,most,cities,?], answer(A,(state(A),next_to(A,B),most(B,C,(state(B),loc(C,B),city(C)))))).
+_parse([how,many,citizens,does,the,biggest,city,have,in,the,usa,?], answer(A,(population(B,A),largest(B,city(B))))).
+_parse([how,many,people,reside,in,utah,?], answer(A,(population(B,A),const(B,stateid(utah))))).
+_parse([what,states,border,montana,?], answer(A,(state(A),next_to(A,B),const(B,stateid(montana))))).
+_parse([what,rivers,run,through,new,york,?], answer(A,(river(A),traverse(A,B),const(B,stateid('new york'))))).
+_parse([what,rivers,traverses,the,state,which,borders,the,most,states,?], answer(A,(river(A),traverse(A,B),most(B,C,(state(B),next_to(B,C),state(C)))))).
+_parse([count,the,states,which,have,elevations,lower,than,what,alabama,has,?], answer(A,count(B,(state(B),loc(C,B),low_point(B,C),lower(C,D),low_point(E,D),const(E,stateid(alabama)),loc(D,E)),A))).
+_parse([what,river,flows,through,the,most,states,?], answer(A,most(A,B,(river(A),traverse(A,B),state(B))))).
+_parse([what,rivers,are,there,in,texas,?], answer(A,(river(A),loc(A,B),const(B,stateid(texas))))).
+_parse([which,state,has,the,highest,point,?], answer(A,(state(A),loc(B,A),highest(B,place(B))))).
+_parse([what,state,is,austin,in,?], answer(A,(state(A),const(B,cityid(austin,_)),loc(B,A)))).
+_parse([how,high,is,the,highest,point,of,alabama,?], answer(A,(elevation(B,A),highest(B,(place(B),loc(B,C),const(C,stateid(alabama))))))).
+_parse([what,is,the,length,of,the,mississippi,river,?], answer(A,(len(B,A),const(B,riverid(mississippi)),river(B)))).
+_parse([how,many,rivers,does,colorado,have,?], answer(A,count(B,(river(B),const(C,stateid(colorado)),loc(B,C)),A))).
+_parse([what,length,is,the,mississippi,?], answer(A,(len(B,A),const(B,riverid(mississippi))))).
+_parse([what,state,has,the,most,rivers,?], answer(A,most(A,B,(state(A),loc(B,A),river(B))))).
+_parse([how,many,people,lived,in,austin,?], answer(A,(population(B,A),const(B,cityid(austin,_))))).
+_parse([what,city,in,the,united,states,has,the,highest,population,density,?], answer(A,largest(B,(city(A),loc(A,C),const(C,countryid(usa)),density(A,B))))).
+_parse([which,states,have,a,river,?], answer(A,(state(A),loc(B,A),river(B)))).
+_parse([what,is,the,highest,point,in,the,usa,?], answer(A,highest(A,(place(A),loc(A,B),const(B,countryid(usa)))))).
+_parse([what,is,the,area,of,florida,?], answer(A,(area(B,A),const(B,stateid(florida))))).
+_parse([what,is,the,capital,of,california,?], answer(A,(capital(A),loc(A,B),const(B,stateid(california))))).
+_parse([what,is,the,capital,of,the,state,with,the,largest,population,?], answer(A,(capital(A),loc(A,B),largest(C,(state(B),population(B,C)))))).
+_parse([which,state,has,the,most,major,rivers,?], answer(A,most(A,B,(state(A),loc(B,A),major(B),river(B))))).
+_parse([what,is,the,capital,of,the,state,with,the,most,inhabitants,?], answer(A,(capital(A),loc(A,B),largest(C,(state(B),population(B,C)))))).
+_parse([what,is,the,capital,of,ohio,?], answer(A,(capital(A),loc(A,B),const(B,stateid(ohio))))).
+_parse([which,state,has,the,lowest,elevation,?], answer(A,(state(A),loc(B,A),lowest(B,place(B))))).
+_parse([what,is,the,population,of,san,antonio,?], answer(A,(population(B,A),const(B,cityid('san antonio',_))))).
+_parse([number,of,states,bordering,iowa,?], answer(A,count(B,(state(B),next_to(B,C),const(C,stateid(iowa))),A))).
+_parse([which,states,does,the,chattahoochee,river,run,through,?], answer(A,(state(A),const(B,riverid(chattahoochee)),river(B),traverse(B,A)))).
+_parse([how,many,people,live,in,detroit,?], answer(A,(population(B,A),const(B,cityid(detroit,_))))).
+_parse([how,many,states,do,not,have,rivers,?], answer(A,count(B,(state(B),\+ (loc(C,B),river(C))),A))).
+_parse([what,states,border,states,that,border,mississippi,?], answer(A,(state(A),next_to(A,B),state(B),next_to(B,C),const(C,stateid(mississippi))))).
+_parse([what,are,the,major,cities,in,the,usa,?], answer(A,(major(A),city(A),loc(A,B),const(B,countryid(usa))))).
+_parse([what,is,the,most,populous,city,?], answer(A,largest(B,(population(A,B),city(A))))).
+_parse([what,is,the,length,of,the,longest,river,that,runs,through,texas,?], answer(A,(len(B,A),longest(B,(river(B),traverse(B,C),const(C,stateid(texas))))))).
+_parse([how,high,is,mount,mckinley,?], answer(A,(elevation(B,A),const(B,placeid('mount mckinley'))))).
+_parse([which,state,has,the,lowest,population,density,?], answer(A,smallest(B,(state(A),density(A,B))))).
+_parse([give,me,the,number,of,rivers,in,california,?], answer(A,count(B,(river(B),loc(B,C),const(C,stateid(california))),A))).
+_parse([what,is,the,largest,river,in,washington,state,?], answer(A,largest(A,(river(A),loc(A,B),const(B,stateid(washington)))))).
+_parse([what,is,the,capital,of,the,florida,state,?], answer(A,(capital(A),loc(A,B),const(B,stateid(florida)),state(B)))).
+_parse([which,city,in,california,has,the,largest,population,?], answer(A,largest(B,(city(A),loc(A,C),const(C,stateid(california)),population(A,B))))).
+_parse([what,is,the,highest,point,in,montana,?], answer(A,highest(A,(place(A),loc(A,B),const(B,stateid(montana)))))).
+_parse([what,is,the,lowest,point,in,the,state,of,california,?], answer(A,lowest(A,(place(A),loc(A,B),state(B),const(B,stateid(california)))))).
+_parse([what,are,the,major,cities,in,alaska,?], answer(A,(major(A),city(A),loc(A,B),const(B,stateid(alaska))))).
+_parse([what,is,the,combined,area,of,all,50,states,?], answer(A,sum(C,state(C),area(C),A))).
+_parse([what,is,the,lowest,point,in,nebraska,in,meters,?], answer(A,lowest(A,(place(A),loc(A,B),const(B,stateid(nebraska)))))).
+_parse([which,is,the,smallest,state,?], answer(A,smallest(A,state(A)))).
+_parse([how,many,rivers,are,in,iowa,?], answer(A,count(B,(river(B),loc(B,C),const(C,stateid(iowa))),A))).
+_parse([what,states,border,florida,?], answer(A,(state(A),next_to(A,B),const(B,stateid(florida))))).
+_parse([what,rivers,are,in,texas,?], answer(A,(river(A),loc(A,B),const(B,stateid(texas))))).
+_parse([what,are,the,major,cities,in,the,state,of,california,?], answer(A,(major(A),city(A),loc(A,B),state(B),const(B,stateid(california))))).
+_parse([what,state,is,the,largest,in,population,?], answer(A,largest(B,(state(A),population(A,B))))).
+_parse([what,is,the,highest,point,in,the,states,bordering,colorado,?], answer(A,highest(A,(place(A),loc(A,B),state(B),next_to(B,C),const(C,stateid(colorado)))))).
+_parse([where,is,the,highest,point,in,hawaii,?], answer(A,highest(A,(place(A),loc(A,B),const(B,stateid(hawaii)))))).
+_parse([what,is,the,highest,point,in,iowa,?], answer(A,highest(A,(place(A),loc(A,B),const(B,stateid(iowa)))))).
+_parse([what,are,the,populations,of,states,through,which,the,mississippi,runs,?], answer(A,(population(B,A),state(B),const(C,riverid(mississippi)),traverse(C,B)))).
+_parse([what,is,the,capital,of,iowa,?], answer(A,(capital(A),loc(A,B),const(B,stateid(iowa))))).
+_parse([which,state,capital,has,the,smallest,population,?], answer(A,smallest(B,(capital(A),population(A,B))))).
+_parse([what,is,the,biggest,american,city,in,a,state,with,a,river,?], answer(A,largest(A,(city(A),loc(A,B),state(B),loc(C,B),river(C))))).
+_parse([which,state,borders,hawaii,?], answer(A,(state(A),next_to(A,B),const(B,stateid(hawaii))))).
+_parse([how,large,is,alaska,?], answer(A,(size(B,A),const(B,stateid(alaska))))).
+_parse([what,is,the,smallest,state,bordering,wyoming,?], answer(A,smallest(A,(state(A),next_to(A,B),const(B,stateid(wyoming)))))).
+_parse([which,state,has,the,highest,population,density,?], answer(A,largest(B,(state(A),density(A,B))))).
+_parse([which,of,the,states,bordering,pennsylvania,has,the,largest,population,?], answer(A,largest(B,(state(A),next_to(A,C),const(C,stateid(pennsylvania)),population(A,B))))).
+_parse([what,state,borders,new,york,?], answer(A,(state(A),next_to(A,B),const(B,stateid('new york'))))).
+_parse([what,is,the,highest,point,of,the,usa,?], answer(A,highest(A,(place(A),loc(A,B),const(B,countryid(usa)))))).
+_parse([how,many,people,live,in,the,united,states,?], answer(A,(population(B,A),const(B,countryid(usa))))).
+_parse([what,states,border,texas,and,have,a,major,river,?], answer(A,(state(A),next_to(A,B),const(B,stateid(texas)),loc(C,A),major(C),river(C)))).
+_parse([where,is,the,lowest,point,in,maryland,?], answer(A,lowest(A,(place(A),loc(A,B),const(B,stateid(maryland)))))).
+_parse([what,is,the,population,of,the,state,with,the,highest,population,density,?], answer(A,(population(B,A),largest(C,(state(B),density(B,C)))))).
+_parse([what,states,have,cities,named,dallas,?], answer(A,(state(A),loc(B,A),city(B),const(B,cityid(dallas,_))))).
+_parse([what,is,the,population,of,the,state,that,borders,the,most,states,?], answer(A,(population(B,A),most(B,C,(state(B),next_to(B,C),state(C)))))).
+_parse([how,many,states,border,the,state,with,the,largest,population,?], answer(A,count(B,(state(B),next_to(B,C),largest(D,(state(C),population(C,D)))),A))).
+_parse([what,state,has,the,largest,area,?], answer(A,largest(B,(state(A),area(A,B))))).
+_parse([which,states,does,the,mississippi,run,through,?], answer(A,(state(A),const(B,riverid(mississippi)),traverse(B,A)))).
+_parse([what,is,the,total,length,of,all,rivers,in,the,usa,?], answer(A,sum(C,river(C),len(C),A))).
+_parse([how,long,is,the,delaware,river,?], answer(A,(len(B,A),const(B,riverid(delaware)),river(B)))).
+_parse([what,is,the,capital,of,colorado,?], answer(A,(capital(A),loc(A,B),const(B,stateid(colorado))))).
+_parse([what,is,the,length,of,the,colorado,river,?], answer(A,(len(B,A),const(B,riverid(colorado)),river(B)))).
+_parse([what,are,the,population,densities,of,each,us,state,?], answer(A,(density(B,A),state(B)))).
+_parse([which,state,has,the,smallest,average,urban,population,?], answer(A,smallest(B,(state(A),density(A,B))))).
+_parse([what,states,have,cities,named,rochester,?], answer(A,(state(A),loc(B,A),city(B),const(B,cityid(rochester,_))))).
+_parse([which,state,has,the,lowest,point,that,borders,idaho,?], answer(A,lowest(B,(state(A),loc(B,A),place(B),next_to(A,C),const(C,stateid(idaho)))))).
+_parse([what,is,the,capital,of,the,smallest,state,?], answer(A,(capital(A),loc(A,B),smallest(B,state(B))))).
+_parse([what,is,the,population,of,washington,?], answer(A,(population(B,A),const(B,stateid(washington))))).
+_parse([iowa,borders,how,many,states,?], answer(A,count(B,(const(C,stateid(iowa)),next_to(C,B),state(B)),A))).
+_parse([which,states,have,cities,named,austin,?], answer(A,(state(A),loc(B,A),city(B),const(B,cityid(austin,_))))).
+_parse([how,many,rivers,are,in,the,state,that,has,the,most,rivers,?], answer(A,count(B,(river(B),loc(B,C),most(C,D,(state(C),loc(D,C),river(D)))),A))).
+_parse([rivers,in,new,york,?], answer(A,(river(A),loc(A,B),const(B,stateid('new york'))))).
+_parse([what,is,the,population,density,of,maine,?], answer(A,(density(B,A),const(B,stateid(maine))))).
+_parse([what,is,the,length,of,the,river,that,flows,through,the,most,states,?], answer(A,(len(B,A),most(B,C,(river(B),traverse(B,C),state(C)))))).
+_parse([what,are,the,capital,city,in,texas,?], answer(A,(capital(A),city(A),loc(A,B),const(B,stateid(texas))))).
+_parse([what,states,does,the,missouri,run,through,?], answer(A,(state(A),const(B,riverid(missouri)),traverse(B,A)))).
+_parse([what,is,the,state,with,the,largest,area,?], answer(A,largest(B,(state(A),area(A,B))))).
+_parse([through,which,states,does,the,longest,river,in,texas,run,?], answer(A,(state(A),longest(B,(river(B),loc(B,C),const(C,stateid(texas)))),traverse(B,A)))).
+_parse([what,is,the,population,of,new,mexico,?], answer(A,(population(B,A),const(B,stateid('new mexico'))))).
+_parse([what,rivers,are,in,states,that,border,texas,?], answer(A,(river(A),loc(A,B),state(B),next_to(B,C),const(C,stateid(texas))))).
+_parse([which,states,border,the,missouri,river,?], answer(A,(state(A),next_to(A,B),const(B,riverid(missouri)),river(B)))).
+_parse([what,is,the,smallest,city,in,the,usa,?], answer(A,smallest(A,(city(A),loc(A,B),const(B,countryid(usa)))))).
+_parse([how,tall,is,mount,mckinley,?], answer(A,(elevation(B,A),const(B,placeid('mount mckinley'))))).
+_parse([what,is,the,highest,point,in,delaware,?], answer(A,highest(A,(place(A),loc(A,B),const(B,stateid(delaware)))))).
+_parse([what,is,the,lowest,point,in,mississippi,?], answer(A,lowest(A,(place(A),loc(A,B),const(B,stateid(mississippi)))))).
+_parse([what,state,is,miami,in,?], answer(A,(state(A),const(B,cityid(miami,_)),loc(B,A)))).
+_parse([what,is,the,lowest,point,of,all,states,through,which,the,colorado,river,runs,through,?], answer(A,lowest(A,(place(A),loc(A,B),state(B),const(C,riverid(colorado)),river(C),traverse(C,B))))).
+_parse([what,states,contain,at,least,one,major,rivers,?], answer(A,(state(A),loc(B,A),major(B),river(B)))).
+_parse([what,is,the,biggest,city,in,louisiana,?], answer(A,largest(A,(city(A),loc(A,B),const(B,stateid(louisiana)))))).
+_parse([what,is,the,most,dense,state,in,the,usa,?], answer(A,largest(B,(density(A,B),state(A),loc(A,C),const(C,countryid(usa)))))).
+_parse([what,is,the,longest,river,in,florida,?], answer(A,longest(A,(river(A),loc(A,B),const(B,stateid(florida)))))).
+_parse([what,is,the,population,of,tempe,arizona,?], answer(A,(population(B,A),const(B,cityid(tempe,az))))).
+_parse([what,is,the,largest,city,in,the,smallest,state,in,the,usa,?], answer(A,largest(A,(city(A),loc(A,B),smallest(B,(state(B),loc(B,C),const(C,countryid(usa)))))))).
+_parse([what,is,the,population,of,alaska,?], answer(A,(population(B,A),const(B,stateid(alaska))))).
+_parse([what,is,the,highest,point,in,nevada,in,meters,?], answer(A,highest(A,(place(A),loc(A,B),const(B,stateid(nevada)))))).
+_parse([what,major,cities,are,located,in,pennsylvania,?], answer(A,(major(A),city(A),loc(A,B),const(B,stateid(pennsylvania))))).
+_parse([what,are,the,rivers,in,alaska,?], answer(A,(river(A),loc(A,B),const(B,stateid(alaska))))).
+_parse([which,states,capital,city,is,the,largest,?], answer(A,largest(B,(state(A),capital(A,B),city(B))))).
+_parse([where,are,mountains,?], answer(A,(loc(B,A),mountain(B)))).
+_parse([what,state,borders,the,most,states,?], answer(A,most(A,B,(state(A),next_to(A,B),state(B))))).
+_parse([what,are,the,cities,of,the,state,with,the,highest,point,?], answer(A,(city(A),loc(A,B),state(B),loc(C,B),highest(C,place(C))))).
+_parse([how,much,population,does,texas,have,?], answer(A,(population(B,A),const(B,stateid(texas))))).
+_parse([what,are,the,major,cities,in,new,york,?], answer(A,(major(A),city(A),loc(A,B),const(B,stateid('new york'))))).
+_parse([what,is,the,highest,mountain,in,us,?], answer(A,highest(A,(mountain(A),loc(A,B),const(B,countryid(usa)))))).
+_parse([what,state,contains,the,highest,point,of,those,the,colorado,river,traverses,?], answer(A,(state(A),loc(B,A),highest(B,(place(B),loc(B,C),state(C),const(D,riverid(colorado)),river(D),traverse(D,C)))))).
+_parse([where,is,dallas,?], answer(A,(loc(B,A),const(B,cityid(dallas,_))))).
+_parse([where,is,the,highest,mountain,of,the,united,states,?], answer(A,highest(A,(mountain(A),loc(A,B),const(B,countryid(usa)))))).
+_parse([what,states,does,the,delaware,river,run,through,?], answer(A,(state(A),const(B,riverid(delaware)),river(B),traverse(B,A)))).
+_parse([how,high,is,the,highest,point,in,america,?], answer(A,(elevation(B,A),highest(B,(place(B),loc(B,C),const(C,countryid(usa))))))).
+_parse([what,city,has,the,most,people,?], answer(A,largest(B,(city(A),population(A,B))))).
+_parse([what,is,the,density,of,the,new,york,?], answer(A,(density(B,A),const(B,stateid('new york'))))).
+_parse([what,is,the,maximum,elevation,of,san,francisco,?], answer(A,highest(A,(place(A),loc(A,B),const(B,cityid('san francisco',_)))))).
+_parse([how,many,capitals,does,rhode,island,have,?], answer(A,count(B,(capital(B),const(C,stateid('rhode island')),loc(B,C)),A))).
+_parse([what,is,the,highest,point,in,virginia,?], answer(A,highest(A,(place(A),loc(A,B),const(B,stateid(virginia)))))).
+_parse([how,long,is,the,ohio,river,?], answer(A,(len(B,A),const(B,riverid(ohio)),river(B)))).
+_parse([how,long,is,the,longest,river,in,california,?], answer(A,(len(B,A),longest(B,(river(B),loc(B,C),const(C,stateid(california))))))).
+_parse([what,is,the,state,with,the,smallest,area,?], answer(A,smallest(B,(state(A),area(A,B))))).
+_parse([which,rivers,do,not,run,through,texas,?], answer(A,(river(A),\+ (traverse(A,B),const(B,stateid(texas)))))).
+_parse([which,state,has,the,most,major,rivers,running,through,it,?], answer(A,most(A,B,(state(A),loc(B,A),major(B),river(B),traverse(B,A))))).
+_parse([what,is,the,lowest,point,in,usa,?], answer(A,lowest(A,(place(A),loc(A,B),const(B,countryid(usa)))))).
+_parse([what,is,the,population,of,new,york,city,?], answer(A,(population(B,A),const(B,cityid('new york',_))))).
+_parse([which,state,has,the,biggest,population,?], answer(A,largest(B,(state(A),population(A,B))))).
+_parse([what,is,the,largest,state,that,borders,texas,?], answer(A,largest(A,(state(A),next_to(A,B),const(B,stateid(texas)))))).
+_parse([what,is,the,largest,city,in,rhode,island,?], answer(A,largest(A,(city(A),loc(A,B),const(B,stateid('rhode island')))))).
+_parse([what,is,the,population,of,tucson,?], answer(A,(population(B,A),const(B,cityid(tucson,_))))).
+_parse([what,is,the,highest,point,in,maine,?], answer(A,highest(A,(place(A),loc(A,B),const(B,stateid(maine)))))).
+_parse([how,many,people,live,in,minneapolis,minnesota,?], answer(A,(population(B,A),const(B,cityid(minneapolis,mn))))).
+_parse([which,rivers,do,not,run,through,usa,?], answer(A,(river(A),\+ (traverse(A,B),const(B,countryid(usa)))))).
+_parse([name,all,the,rivers,in,colorado,?], answer(A,(river(A),loc(A,B),const(B,stateid(colorado))))).
+_parse([what,is,the,longest,river,in,the,largest,state,?], answer(A,longest(A,(river(A),loc(A,B),largest(B,state(B)))))).
+_parse([which,state,has,the,smallest,population,density,?], answer(A,smallest(B,(state(A),density(A,B))))).
+_parse([what,is,capital,of,the,state,with,the,lowest,point,?], answer(A,(capital(A),loc(A,B),state(B),loc(C,B),lowest(C,place(C))))).
+_parse([how,long,is,the,longest,river,in,the,usa,?], answer(A,(len(B,A),longest(B,(river(B),loc(B,C),const(C,countryid(usa))))))).
+_parse([how,many,states,border,iowa,?], answer(A,count(B,(state(B),next_to(B,C),const(C,stateid(iowa))),A))).
+_parse([what,is,the,highest,point,in,states,bordering,georgia,?], answer(A,highest(A,(place(A),loc(A,B),state(B),next_to(B,C),const(C,stateid(georgia)))))).
+_parse([san,antonio,is,in,what,state,?], answer(A,(const(B,cityid('san antonio',_)),loc(B,A),state(A)))).
+_parse([which,river,traverses,most,states,?], answer(A,most(A,B,(river(A),traverse(A,B),state(B))))).
+_parse([what,is,the,area,of,ohio,?], answer(A,(area(B,A),const(B,stateid(ohio))))).
+_parse([what,is,the,longest,river,in,the,state,with,the,most,major,cities,?], answer(A,longest(A,(river(A),loc(A,B),most(B,C,(state(B),loc(C,B),major(C),city(C))))))).
+_parse([which,states,does,the,longest,river,run,through,?], answer(A,(state(A),longest(B,river(B)),traverse(B,A)))).
+_parse([how,many,states,does,usa,have,?], answer(A,count(B,(state(B),const(C,countryid(usa)),loc(B,C)),A))).
+_parse([what,is,the,population,of,the,largest,city,in,the,state,with,the,largest,area,?], answer(A,(population(B,A),largest(B,(city(B),loc(B,C),largest(D,(state(C),area(C,D)))))))).
+_parse([what,is,the,high,point,of,wyoming,?], answer(A,(high_point(B,A),loc(A,B),const(B,stateid(wyoming))))).
+_parse([what,is,the,highest,mountain,in,the,us,?], answer(A,highest(A,(mountain(A),loc(A,B),const(B,countryid(usa)))))).
+_parse([how,many,residents,live,in,texas,?], answer(A,(population(B,A),const(B,stateid(texas))))).
+_parse([what,are,the,major,cities,in,alabama,?], answer(A,(major(A),city(A),loc(A,B),const(B,stateid(alabama))))).
+_parse([what,is,the,smallest,state,that,borders,the,most,states,?], answer(A,smallest(A,most(A,B,(state(A),next_to(A,B),state(B)))))).
+_parse([what,are,all,the,rivers,in,texas,?], answer(A,(river(A),loc(A,B),const(B,stateid(texas))))).
+_parse([what,is,the,least,populous,state,?], answer(A,smallest(B,(population(A,B),state(A))))).
+_parse([what,is,the,population,density,of,the,largest,state,?], answer(A,(density(B,A),largest(B,state(B))))).
+_parse([which,river,runs,through,most,states,?], answer(A,most(A,B,(river(A),traverse(A,B),state(B))))).
+_parse([which,state,is,mount,mckinley,in,?], answer(A,(state(A),const(B,placeid('mount mckinley')),loc(B,A)))).
+_parse([which,river,goes,through,the,most,states,?], answer(A,most(A,B,(river(A),traverse(A,B),state(B))))).
+_parse([what,are,the,major,cities,in,states,through,which,the,mississippi,runs,?], answer(A,(major(A),city(A),loc(A,B),state(B),traverse(C,B),const(C,riverid(mississippi))))).
+_parse([what,is,the,highest,elevation,in,texas,?], answer(A,highest(A,(place(A),loc(A,B),const(B,stateid(texas)))))).
+_parse([which,states,border,illinois,?], answer(A,(state(A),next_to(A,B),const(B,stateid(illinois))))).
+_parse([how,many,states,does,tennessee,border,?], answer(A,count(B,(state(B),const(C,stateid(tennessee)),next_to(C,B)),A))).
+_parse([how,many,people,live,in,rhode,island,?], answer(A,(population(B,A),const(B,stateid('rhode island'))))).
+_parse([number,of,people,in,boulder,?], answer(A,(population(B,A),const(B,cityid(boulder,_))))).
+_parse([tell,me,what,cities,are,in,texas,?], answer(A,(city(A),loc(A,B),const(B,stateid(texas))))).
+_parse([what,river,runs,through,the,state,with,the,most,cities,?], answer(A,(river(A),traverse(A,B),most(B,C,(state(B),loc(C,B),city(C)))))).
+_parse([which,states,border,the,state,with,the,smallest,area,?], answer(A,(state(A),next_to(A,B),smallest(C,(state(B),area(B,C)))))).
+_parse([what,states,border,michigan,?], answer(A,(state(A),next_to(A,B),const(B,stateid(michigan))))).
+_parse([what,is,the,largest,state,bordering,arkansas,?], answer(A,largest(A,(state(A),next_to(A,B),const(B,stateid(arkansas)))))).
+_parse([how,long,is,the,north,platte,river,?], answer(A,(len(B,A),const(B,riverid('north platte')),river(B)))).
+_parse([what,state,bordering,nevada,has,the,largest,population,?], answer(A,largest(B,(state(A),next_to(A,C),const(C,stateid(nevada)),population(A,B))))).
+_parse([what,is,the,capital,of,new,york,?], answer(A,(capital(A),loc(A,B),const(B,stateid('new york'))))).
+_parse([which,rivers,run,through,states,with,fewest,cities,?], answer(A,(river(A),traverse(A,B),fewest(B,C,(state(B),loc(C,B),city(C)))))).
+_parse([what,are,the,populations,of,the,major,cities,of,texas,?], answer(A,(population(B,A),major(B),city(B),loc(B,C),const(C,stateid(texas))))).
+_parse([what,is,the,capital,of,the,state,with,the,longest,river,?], answer(A,(capital(A),loc(A,B),longest(C,(state(B),loc(C,B),river(C)))))).
+_parse([which,state,has,the,most,rivers,?], answer(A,most(A,B,(state(A),loc(B,A),river(B))))).
+_parse([how,many,people,live,in,the,capital,of,texas,?], answer(A,(population(B,A),capital(B),loc(B,C),const(C,stateid(texas))))).
+_parse([where,is,the,most,populated,area,of,new,mexico,?], answer(A,largest(B,(population(A,B),city(A),loc(A,C),const(C,stateid('new mexico')))))).
+_parse([how,many,states,have,a,higher,point,than,the,highest,point,of,the,state,with,the,largest,capital,city,in,the,us,?], answer(A,count(B,(state(B),loc(C,B),higher(C,D),place(C),highest(D,(place(D),loc(D,E),state(E),loc(F,E),largest(F,(capital(F),city(F),loc(F,G),const(G,countryid(usa))))))),A))).
+_parse([how,many,people,live,in,mississippi,?], answer(A,(population(B,A),const(B,stateid(mississippi))))).
+_parse([what,is,the,largest,city,in,smallest,state,through,which,the,mississippi,runs,?], answer(A,largest(A,(city(A),loc(A,B),smallest(B,(state(B),const(C,riverid(mississippi)),traverse(C,B))))))).
+_parse([what,states,have,cities,named,salt,lake,city,?], answer(A,(state(A),loc(B,A),city(B),const(B,cityid('salt lake city',_))))).
+_parse([what,state,has,the,smallest,urban,population,?], answer(A,smallest(B,(state(A),population(A,B))))).
+_parse([how,tall,is,the,highest,point,in,montana,?], answer(A,(elevation(B,A),highest(B,(place(B),loc(B,C),const(C,stateid(montana))))))).
+_parse([what,is,the,smallest,state,that,the,mississippi,river,runs,through,?], answer(A,smallest(A,(state(A),const(B,riverid(mississippi)),river(B),traverse(B,A))))).
+_parse([what,is,the,area,of,the,texas,state,?], answer(A,(area(B,A),const(B,stateid(texas))))).
+_parse([what,are,the,major,cities,in,vermont,?], answer(A,(major(A),city(A),loc(A,B),const(B,stateid(vermont))))).
+_parse([what,is,the,biggest,capital,city,in,the,us,?], answer(A,largest(A,(capital(A),loc(A,B),const(B,countryid(usa)))))).
+_parse([where,is,the,chattahoochee,river,?], answer(A,(loc(B,A),const(B,riverid(chattahoochee)),river(B)))).
+_parse([what,is,the,population,of,utah,?], answer(A,(population(B,A),const(B,stateid(utah))))).
+_parse([how,many,states,are,there,in,the,usa,?], answer(A,count(B,(state(B),loc(B,C),const(C,countryid(usa))),A))).
+_parse([what,states,are,next,to,arizona,?], answer(A,(state(A),next_to(A,B),const(B,stateid(arizona))))).
+_parse([what,is,the,lowest,point,in,arkansas,?], answer(A,lowest(A,(place(A),loc(A,B),const(B,stateid(arkansas)))))).
+_parse([what,is,the,most,populous,state,?], answer(A,largest(B,(population(A,B),state(A))))).
+_parse([what,are,the,population,of,mississippi,?], answer(A,(population(B,A),const(B,stateid(mississippi))))).
+_parse([which,state,borders,the,most,states,?], answer(A,most(A,B,(state(A),next_to(A,B),state(B))))).
+_parse([which,us,city,has,the,highest,population,density,?], answer(A,largest(B,(city(A),density(A,B))))).
+_parse([what,is,the,area,of,wisconsin,?], answer(A,(area(B,A),const(B,stateid(wisconsin))))).
+_parse([how,large,is,texas,?], answer(A,(size(B,A),const(B,stateid(texas))))).
+_parse([what,is,the,population,of,the,smallest,state,?], answer(A,smallest(B,(population(B,A),state(B))))).
+_parse([which,is,the,density,of,the,state,that,the,largest,river,in,the,united,states,runs,through,?], answer(A,(density(B,A),state(B),longest(C,(river(C),loc(C,D),const(D,countryid(usa)))),traverse(C,B)))).

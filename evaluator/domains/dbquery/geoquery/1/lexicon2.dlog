@@ -1,0 +1,27 @@
+_lex(['city/N'], 'city/1').
+_lex(['state/N'], 'state/1').
+_lex(['country/N'], 'country/1').
+_lex(['lake/N'], 'lake/1').
+_lex(['mountain/N'], 'mountain/1').
+_lex(['river/N'], 'river/1').
+_lex(['point/N'], 'place/1').
+_lex(['where/N'], 'loc/1').
+
+_lex(['major'], 'major/1').
+_lex(['capital/N'], 'capital/1').
+_lex('high point/N', 'high_point/2').
+
+_lex(['person/N'], 'person/1').
+_lex(['population/N'], 'population/2').
+
+_lex(['long'], 'len/2').
+_lex(['short'], 'negLen/2').
+_lex(['large'], 'size/2').
+_lex(['small'], 'negSize/2').
+_lex(['high'], 'elevation/2').
+_lex(['low'], 'negElevation/2').
+_lex(['dense'], 'density/2').
+_lex(['sparse'], 'negDensity/2').
+_lex(['area'], 'area/2').
+
+_include('lexicon0.dlog').

@@ -1,0 +1,3 @@
+the house|||das Haus
+the book|||das Buch
+a book|||ein Buch

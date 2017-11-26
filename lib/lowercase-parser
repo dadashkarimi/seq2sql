@@ -1,0 +1,2 @@
+d=`dirname $0`
+java -jar $d/berkeleyParser.jar -gr $d/wsj+qs_lc.gr.0 -flush
