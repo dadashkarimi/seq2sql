@@ -47,10 +47,10 @@ class Attention2HistorySpec(Spec):
         value=0.1 * numpy.random.uniform(-1.0, 1.0, (dec_full_size, annotation_size)).astype(theano.config.floatX))
     self.w_attention = theano.shared(
         name='w_attention',
-        value=0.1 * numpy.random.uniform(-1.0, 1.0, (self.hidden_size, annotation_size)).astype(theano.config.floatX))
+        value=0.1 * numpy.random.uniform(-1.0, 1.0, (self.hidden_size, self.in_vocabulary.size())).astype(theano.config.floatX))
     self.w_history = theano.shared(
         name='w_history',
-        value=0.1 * numpy.random.uniform(-1.0, 1.0, (self.in_vocabulary.size(), self.hidden_size)).astype(theano.config.floatX))
+        value=0.1 * numpy.random.uniform(-1.0, 1.0, (self.in_vocabulary.size(),annotation_size)).astype(theano.config.floatX))
 
 
   def set_pair_stat(self,pair_stat):
@@ -92,8 +92,10 @@ class Attention2HistorySpec(Spec):
     return self.decoder.step(input_t, h_prev)
 
   def get_attention_scores(self, h_for_write, annotations):
-    scores = T.dot(T.dot(self.w_attention, annotations.T).T, h_for_write) # eji = sjT * Wa * bi
     #scores = T.dot(T.dot(self.w_attention, annotations.T).T, h_for_write) # eji = sjT * Wa * bi
+    H1 = T.dot(self.w_history,annotations.T) # eji = sjT * Wa * Wh * bi
+    H2 = T.dot(self.w_attention,H1).T # eji = sjT * Wa * Wh * bi
+    scores = T.dot(H2,h_for_write)
     return scores
 
   def get_alpha(self, scores):
