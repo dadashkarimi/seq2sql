@@ -50,7 +50,7 @@ class Attention2HistorySpec(Spec):
         value=0.1 * numpy.random.uniform(-1.0, 1.0, (self.hidden_size, annotation_size)).astype(theano.config.floatX))
     self.w_history = theano.shared(
         name='w_history',
-        value=0.1 * numpy.random.uniform(-1.0, 1.0, (annotation_size,annotation_size)).astype(theano.config.floatX))
+        value=0.1 * numpy.random.uniform(-1.0, 1.0, (self.in_vocabulary.size(), self.hidden_size)).astype(theano.config.floatX))
 
 
   def set_pair_stat(self,pair_stat):
@@ -61,7 +61,7 @@ class Attention2HistorySpec(Spec):
   
   def get_local_params(self):
     return (self.fwd_encoder.params + self.bwd_encoder.params + 
-            self.decoder.params + self.writer.params + [self.w_enc_to_dec])
+            self.decoder.params + self.writer.params + [self.w_enc_to_dec] + [self.w_history])
 
   def create_output_layer(self, vocab, hidden_size):
     return OutputLayer(vocab, hidden_size)
