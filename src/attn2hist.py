@@ -219,11 +219,8 @@ class Attention2HistoryModel(NeuralModel):
 
       y_tok_seq.append(y_tok)
       h_t = self._decoder_step(y_t, c_t, h_t)
-    #for x in ex.x_inds:
-    ##    x_tok = self.in_vocabulary.get_word(x)
-    #    for y_tok in y_tok_seq:
     
-    print('first: ',y_tok_seq)
+    '''print('first: ',y_tok_seq)
     es = ex.x_str.split() 
     fs = y_tok_seq
     args =(es,fs,t,a)
@@ -249,10 +246,7 @@ class Attention2HistoryModel(NeuralModel):
             if x_t in self.spec.pair_stat:
                 for y_,p_xy in self.spec.pair_stat[x_t]:
                     y_tok_ = self.out_vocabulary.get_word(y_)
-                    #print(x_tok,y_tok_,float(t[(x_tok,y_tok_)]))
-                    #write_dist[y_] = 0.8*write_dist[y_]+0.2*float(t[(x_tok,y_tok_)]*a[(new_ind,i,len(ex.x_str),l_f)])
-                    write_dist[y_] = 0.5*write_dist[y_]+0.5*float(a[(new_ind,i,len(ex.x_str),l_f)])
-                    #input('here')
+                    write_dist[y_] = 1.0*write_dist[y_]+0.0*float(a[(new_ind,i,len(ex.x_str),l_f)])
       y_t = numpy.argmax(write_dist)
       
       p_y_t = write_dist[y_t]
@@ -277,7 +271,7 @@ class Attention2HistoryModel(NeuralModel):
     fs = y_tok_seq
     args =(es,fs,t,a)
     ibmmodel=ibm2([(ex.x_str,ex.y_str)])
-    print(ibmmodel.show_matrix(*args))
+    print(ibmmodel.show_matrix(*args))'''
     #input('here ..')
     return [Derivation(ex, p, y_tok_seq)]
 

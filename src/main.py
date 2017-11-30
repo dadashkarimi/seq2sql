@@ -257,19 +257,21 @@ def preprocess_data(model, raw):
   return data
 
 def get_spec(in_vocabulary, out_vocabulary, lexicon):
-  kwargs = {'rnn_type': OPTIONS.rnn_type, 'step_rule': OPTIONS.step_rule}
-  if OPTIONS.copy.startswith('attention'):
-    if OPTIONS.model == 'attention':
-      kwargs['attention_copying'] = OPTIONS.copy
-    if OPTIONS.model=='attn2hist':
-      kwargs['attention_copying'] = OPTIONS.copy
-      kwargs['pair_stat'] = {} # not be set yet
-      kwargs['em_model'] = None # not be set yet
-    else:
-      print >> sys.stderr, "Can't use use attention-based copying without attention model"
-      sys.exit(1)
-  constructor = MODELS[OPTIONS.model].get_spec_class()
-  return constructor(in_vocabulary, out_vocabulary, lexicon, 
+
+    kwargs = {'rnn_type': OPTIONS.rnn_type, 'step_rule': OPTIONS.step_rule}
+    if OPTIONS.copy.startswith('attention'):
+        print('model:',OPTIONS.model=='attention')
+        if OPTIONS.model == 'attention':
+            kwargs['attention_copying'] = OPTIONS.copy
+        elif OPTIONS.model=='attn2hist':
+            kwargs['attention_copying'] = OPTIONS.copy
+            kwargs['pair_stat'] = {} # not be set yet
+            kwargs['em_model'] = None # not be set yet
+        else:
+            print >> sys.stderr, "Can't use use attention-based copying without attention model"
+            sys.exit(1)
+    constructor = MODELS[OPTIONS.model].get_spec_class()
+    return constructor(in_vocabulary, out_vocabulary, lexicon, 
                      OPTIONS.hidden_size, **kwargs)
 
 def get_model(spec):
@@ -530,7 +532,7 @@ def test_ibm_model(model,dataset):
     sentences = [(ex.x_str,ex.y_str.strip()) for ex in dataset]
     #print([(es.split(), fs.split()) for (es, fs) in sentences])
     ibmmodel = ibm2(sentences)
-    t,a = ibmmodel.train(loop_count=40)
+    t,a = ibmmodel.train(loop_count=1)
     es = "what is the highest point in florida ?".split()
     fs="_answer ( A , _highest ( A , ( _place ( A ) , _loc ( A , B ) , _const ( B , _stateid ( florida ) ) ) ) )".strip().split()
     #fs="_answer ( A ,".strip().split()
@@ -594,9 +596,9 @@ def set_pair_stats(model, dataset):
         #print('the input word is :', model.spec.in_vocabulary.get_word(x))
         #input('stop')
         pair_stat_list[x]=pairs
-    
-    spec = model.spec
-    spec.set_pair_stat(pair_stat_list)
+    if OPTIONS.model=="attn2hist":
+        spec = model.spec
+        spec.set_pair_stat(pair_stat_list)
     return pair_stat_list
        
 def write_stats():
@@ -679,8 +681,9 @@ def run():
 
   if train_raw:
     train_data = preprocess_data(model, train_raw)
-    set_pair_stats(model,train_data) # for the attn2hist model
-    test_ibm_model(model,train_data) # for the attn2hist model
+    if OPTIONS.model =='attn2hist':  
+        set_pair_stats(model,train_data) # for the attn2hist model
+        test_ibm_model(model,train_data) # for the attn2hist model
     random.seed(OPTIONS.model_seed)
     dev_data = None
     if dev_raw:
