@@ -1,6 +1,6 @@
 """A soft attention model
 
-We use the global attention model with input feeding
+We use the globar attention model with input feeding
 used by Luong et al. (2015).
 See http://stanford.edu/~lmthang/data/papers/emnlp15_attn.pdf
 """
@@ -47,14 +47,27 @@ class Attention2HistoryModel(NeuralModel):
 
     bwd_states = bwd_states[::-1]  # Reverse backward states.
     annotations = T.concatenate([fwd_states, bwd_states], axis=1)
+    self._get_fwd_states = theano.function(inputs = [x], outputs=[fwd_states[-1]])
     return (dec_init_state, annotations)
 
   def setup_encoder(self):
     """Run the encoder.  Used at test time."""
     x = T.lvector('x_for_enc')
     dec_init_state, annotations = self._symb_encoder(x)
+
+    h_for_write = self.spec.decoder.get_h_for_write(dec_init_state)
+    scores = self.spec.get_attention_scores(h_for_write, annotations)
+    alpha = self.spec.get_alpha(scores)
+    c_t = self.spec.get_context(alpha, annotations)
+    write_dist = self.spec.f_write(h_for_write, c_t, scores)
+    self.h_for = theano.function(
+        inputs=[x], outputs=[h_for_write])
+    self.get_scores = theano.function(inputs=[x], outputs=[scores])
+    
     self._encode = theano.function(
         inputs=[x], outputs=[dec_init_state, annotations])
+
+
 
   def setup_decoder_step(self):
     """Advance the decoder by one step.  Used at test time."""
@@ -75,6 +88,7 @@ class Attention2HistoryModel(NeuralModel):
     write_dist = self.spec.f_write(h_for_write, c_t, scores)
     self._decoder_write = theano.function(
         inputs=[annotations, h_prev], outputs=[write_dist, c_t, alpha])
+    
 
   def setup_backprop(self):
     eta = T.scalar('eta_for_backprop')
@@ -93,6 +107,7 @@ class Attention2HistoryModel(NeuralModel):
         inputs=[x, y, eta, y_in_x_inds, l2_reg],
         outputs=[p_y_seq, objective],
         updates=updates)
+    self._get_dec_annot = theano.function(inputs = [x], outputs=[dec_init_state, annotations])
     # Add distractors
     '''self._get_nll_distract = []
     self._backprop_distract = []
@@ -123,11 +138,11 @@ class Attention2HistoryModel(NeuralModel):
       alpha = self.spec.get_alpha(scores)
       c_t = self.spec.get_context(alpha, annotations)
       write_dist = self.spec.f_write(h_for_write, c_t, scores)
+      #self._get_y_in_x_shape = theano.function(inputs = [cur_y_in_x_inds], outputs=[cur_y_in_x_inds])
       base_p_y_t = write_dist[y_t]
       if self.spec.attention_copying:
-        copying_p_y_t = T.dot(
-            write_dist[self.out_vocabulary.size():self.out_vocabulary.size() + cur_y_in_x_inds.shape[0]],
-            cur_y_in_x_inds)
+        copying_p_y_t = T.dot(write_dist[self.out_vocabulary.size():self.out_vocabulary.size() + cur_y_in_x_inds.shape[0]],cur_y_in_x_inds)
+        
         p_y_t = base_p_y_t + copying_p_y_t
       else:
         p_y_t = base_p_y_t

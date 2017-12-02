@@ -49,7 +49,7 @@ class Attention2HistorySpec(Spec):
         value=0.1 * numpy.random.uniform(-1.0, 1.0, (dec_full_size, annotation_size)).astype(theano.config.floatX))
     self.w_attention = theano.shared(
         name='w_attention',
-        value=0.1 * numpy.random.uniform(-1.0, 1.0, (self.hidden_size, self.out_vocabulary.size())).astype(theano.config.floatX))
+        value=0.1 * numpy.random.uniform(-1.0, 1.0, (self.hidden_size, self.in_vocabulary.size())).astype(theano.config.floatX))
     self.w_history = theano.shared(
         name='w_history',
         value=0.1 * numpy.random.uniform(-1.0, 1.0, (self.in_vocabulary.size(),annotation_size)).astype(theano.config.floatX))
@@ -104,15 +104,17 @@ class Attention2HistorySpec(Spec):
 
   def get_attention_scores(self, h_for_write, annotations):
     #S1 = T.dot(T.dot(self.w_local_attention, annotations.T).T, h_for_write) # eji = sjT * Wa * bi
-    H1 = T.dot(self.w_history,annotations.T) # eji = sjT * Wa * Wh * bi
-    H2 = T.dot(self.V,H1)
-    H3 = T.dot(self.s,H2)
+    S1 = T.dot(h_for_write,self.w_attention)  # eji = sjT * Wa * bi
+    #S2 = T.dot(S1.T, h_for_write) # eji = sjT * Wa * bi
+    '''H1 = T.nnet.relu(T.dot(self.w_history,annotations.T)) # eji = sjT * Wa * Wh * bi
+    H2 = T.nnet.relu(T.dot(self.V,H1))
+    H3 = T.nnet.relu(T.dot(self.s,H2))
     H4 = T.dot(self.U,H3)
     H5 = T.dot(self.w_attention,H4).T # eji = sjT * Wa * Wh * bi
-    S2 = T.dot(H5,h_for_write)
+    S2 = T.dot(H5,h_for_write)'''
     #z_t = T.nnet.sigmoid(T.dot(annotations,annotations.T))
     #return T.nnet.sigmoid(S2)+S1
-    return S2
+    return S1
 
   def get_alpha(self, scores):
     alpha = T.nnet.softmax(scores)[0] # exp(eji)/sumi(exp(eji))
@@ -126,5 +128,5 @@ class Attention2HistorySpec(Spec):
     """Gives the softmax output distribution."""
     input_t = T.concatenate([h_t, c_t])
     if not self.attention_copying:
-      scores = None
+        scores = None
     return self.writer.write(input_t, scores)

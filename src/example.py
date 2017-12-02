@@ -50,9 +50,14 @@ class Example(object):
         self.copy_toks = self.copy_toks[::-1]
     else:
       self.copy_toks = [lexicon.strip_unk(w) for w in self.x_toks]
-
-    self.y_in_x_inds = ([
+    '''self.y_in_x_inds = ([
         [int(x_tok == y_tok) for x_tok in self.copy_toks] + [0]
         for y_tok in self.y_toks
-    ] + [[0] * (len(self.x_toks) + 1)])
-    # Make sure to add EOS tags for both x and y
+    ] + [[0] * (len(self.x_toks) + 1)])'''
+
+    self.y_in_x_inds = ([
+        [int(x_tok == y_tok) for x_tok in [input_vocab.get_word(i) for i in range(input_vocab.size())]] + [0]
+        for y_tok in self.y_toks
+    ] + [[0] * (input_vocab.size() + 1)])
+    #print len(self.y_in_x_inds),len(self.y_in_x_inds[0])
+      #  Make sure to add EOS tags for both x and y

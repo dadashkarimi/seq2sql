@@ -1,7 +1,7 @@
 """A generic continuous neural sequence-to-sequence model."""
 import collections
 import itertools
-import numpy
+import numpy as np
 import os
 import random
 import sys
@@ -33,7 +33,7 @@ class NeuralModel(object):
     nw: number of words in the vocabulary
     de: dimension of word embeddings
   """
-  def __init__(self, spec, distract_num=0, float_type=numpy.float64):
+  def __init__(self, spec, distract_num=0, float_type=np.float64):
     """Initialize.
 
     Args:
@@ -53,7 +53,7 @@ class NeuralModel(object):
       self.grad_cache = [
           theano.shared(
               name='%s_grad_cache' % p.name,
-              value=numpy.zeros_like(p.get_value()))
+              value=np.zeros_like(p.get_value()))
           for p in self.params]
     self.all_shared = spec.get_all_shared()
     self.setup()
@@ -88,6 +88,20 @@ class NeuralModel(object):
           ex.x_inds, ex.y_inds, eta, ex.y_in_x_inds, l2_reg, *x_inds_d_all)
     else:
       info = self._backprop(ex.x_inds, ex.y_inds, eta, ex.y_in_x_inds, l2_reg)
+      dec_init_state, annotations = self._get_dec_annot(ex.x_inds)
+      h_for = self.h_for(ex.x_inds)
+      scores = self.get_scores(ex.x_inds)
+      print("scores size: {}".format(len(scores)))
+      print("scores size: {}".format(len(scores[0])))
+      print("h_for_write size: {}\n".format(np.array(h_for).shape))
+      #print(dec_init_state)
+      last_state = self._get_fwd_states(ex.x_inds)
+      #print(last_state)
+      print("dec_size: {}, annot size: {} \n".format(dec_init_state.shape, annotations.shape))
+      print("cur_y_in_x:{}".format(len(self._get_y_in_x_shape(ex.x_inds))))
+      print("cur_y_in_x:{}".format(len(self._get_y_in_x_shape(ex.x_inds)[0])))
+      #print("copying_p_y_t:{}".format(self._get_copying_p_y_t_shape(ex.y_in_x_inds).shape))
+
     p_y_seq = info[0]
     objective = info[1]
     print 'P(y_i): %s' % p_y_seq
