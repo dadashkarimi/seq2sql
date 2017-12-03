@@ -102,6 +102,10 @@ class Attention2HistorySpec(Spec):
     input_t = T.concatenate([y_emb_t, c_prev]) # [phi(yj);cj]
     return self.decoder.step(input_t, h_prev)
 
+  def get_attention_scores_inner(self, h_for_write, annotations):
+    S1 = T.dot(self.w_local_attention, self.w_history.T).T# eji = sjT * Wa * bi
+    return S1
+  
   def get_attention_scores(self, h_for_write, annotations):
     #S1 = T.dot(T.dot(self.w_local_attention, annotations.T).T, h_for_write) # eji = sjT * Wa * bi
     S1 = T.dot(T.dot(self.w_local_attention, self.w_history.T).T, h_for_write) # eji = sjT * Wa * bi
