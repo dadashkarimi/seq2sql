@@ -139,9 +139,9 @@ class Attention2HistoryModel(NeuralModel):
       #self._get_y_in_x_shape = theano.function(inputs = [cur_y_in_x_inds], outputs=[cur_y_in_x_inds])
       base_p_y_t = write_dist[y_t]
       if self.spec.attention_copying:
-        copying_p_y_t = T.dot(write_dist[self.out_vocabulary.size():self.out_vocabulary.size() + cur_y_in_x_inds.shape[0]],cur_y_in_x_inds)
-        
-        p_y_t = base_p_y_t #+ copying_p_y_t
+        copying_p_y_t = T.dot(write_dist[self.out_vocabulary.size():],cur_y_in_x_inds[0])
+        #copying_p_y_t = T.dot(write_dist[self.out_vocabulary.size():self.out_vocabulary.size() + cur_y_in_x_inds.shape[0]],cur_y_in_x_inds)
+        p_y_t = base_p_y_t + copying_p_y_t
       else:
         p_y_t = base_p_y_t
       h_t = self.spec.f_dec(y_t, c_t, h_prev)
