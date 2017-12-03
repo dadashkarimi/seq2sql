@@ -532,7 +532,7 @@ def test_ibm_model(model,dataset):
     sentences = [(ex.x_str,ex.y_str.strip()) for ex in dataset]
     #print([(es.split(), fs.split()) for (es, fs) in sentences])
     ibmmodel = ibm2(sentences)
-    t,a = ibmmodel.train(loop_count=1)
+    t,a = ibmmodel.train(loop_count=0)
     es = "what is the highest point in florida ?".split()
     fs="_answer ( A , _highest ( A , ( _place ( A ) , _loc ( A , B ) , _const ( B , _stateid ( florida ) ) ) ) )".strip().split()
     #fs="_answer ( A ,".strip().split()
