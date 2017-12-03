@@ -57,12 +57,15 @@ class Attention2HistoryModel(NeuralModel):
 
     h_for_write = self.spec.decoder.get_h_for_write(dec_init_state)
     scores = self.spec.get_attention_scores(h_for_write, annotations)
+    scores_inner = self.spec.get_attention_scores_inner(h_for_write, annotations)
+    
     alpha = self.spec.get_alpha(scores)
     c_t = self.spec.get_context(alpha)
     write_dist = self.spec.f_write(h_for_write, c_t, scores)
     self.h_for = theano.function(
         inputs=[x], outputs=[h_for_write])
     self.get_scores = theano.function(inputs=[x], outputs=[scores])
+    self.get_scores_inner = theano.function(inputs=[x], outputs=[scores_inner], on_unused_input='warn')
     self._encode = theano.function(
         inputs=[x], outputs=[dec_init_state, annotations])
 
