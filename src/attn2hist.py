@@ -57,15 +57,18 @@ class Attention2HistoryModel(NeuralModel):
 
     h_for_write = self.spec.decoder.get_h_for_write(dec_init_state)
     scores = self.spec.get_attention_scores(h_for_write, annotations)
-    scores_inner = self.spec.get_attention_scores_inner(h_for_write, annotations)
-    
     alpha = self.spec.get_alpha(scores)
     c_t = self.spec.get_context(alpha)
     write_dist = self.spec.f_write(h_for_write, c_t, scores)
+    
+    loc_scores = self.spec.get_local_attention_scores(h_for_write, annotations)
+    loc_alpha = self.spec.get_alpha(loc_scores)
+    loc_c_t = self.spec.get_local_context(loc_alpha,annotations)
+    loc_write_dist = self.spec.f_write(h_for_write, loc_c_t, loc_scores)
+
     self.h_for = theano.function(
         inputs=[x], outputs=[h_for_write])
     self.get_scores = theano.function(inputs=[x], outputs=[scores])
-    self.get_scores_inner = theano.function(inputs=[x], outputs=[scores_inner], on_unused_input='warn')
     self._encode = theano.function(
         inputs=[x], outputs=[dec_init_state, annotations])
 
@@ -84,11 +87,20 @@ class Attention2HistoryModel(NeuralModel):
     annotations = T.matrix('annotations_for_write')
     h_prev = T.vector('h_prev_for_write')
     h_for_write = self.spec.decoder.get_h_for_write(h_prev)
+    
     scores = self.spec.get_attention_scores(h_for_write, annotations)
     alpha = self.spec.get_alpha(scores)
     c_t = self.spec.get_context(alpha)
     write_dist = self.spec.f_write(h_for_write, c_t, scores)
+    
+    loc_scores = self.spec.get_local_attention_scores(h_for_write, annotations)
+    loc_alpha = self.spec.get_alpha(loc_scores)
+    loc_c_t = self.spec.get_local_context(loc_alpha,annotations)
+    loc_write_dist = self.spec.f_write(h_for_write, loc_c_t, loc_scores)
+
     self._decoder_write = theano.function(inputs=[annotations, h_prev], outputs=[write_dist, c_t, alpha],on_unused_input='warn')
+    
+    self._loc_decoder_write = theano.function(inputs=[annotations, h_prev], outputs=[loc_write_dist, loc_c_t, loc_alpha])#,on_unused_input='warn')
     
 
   def setup_backprop(self):
@@ -96,62 +108,67 @@ class Attention2HistoryModel(NeuralModel):
     x = T.lvector('x_for_backprop')
     y = T.lvector('y_for_backprop')
     y_in_x_inds = T.lmatrix('y_in_x_inds_for_backprop')
+    y_in_src_inds = T.lmatrix('y_in_src_inds_for_backprop')
     l2_reg = T.scalar('l2_reg_for_backprop')
 
     # Normal operation
     dec_init_state, annotations = self._symb_encoder(x)
     nll, p_y_seq, objective, updates  = self._setup_backprop_with(
-        dec_init_state, annotations, y,  y_in_x_inds, eta, l2_reg)
+        dec_init_state, annotations, y,  y_in_x_inds, y_in_src_inds, eta, l2_reg)
     self._get_nll = theano.function(
-        inputs=[x, y, y_in_x_inds], outputs=nll, on_unused_input='warn')
+        inputs=[x, y, y_in_x_inds,y_in_src_inds], outputs=nll, on_unused_input='warn')
     self._backprop = theano.function(
-        inputs=[x, y, eta, y_in_x_inds, l2_reg],
+        inputs=[x, y, eta, y_in_x_inds,y_in_src_inds, l2_reg],
         outputs=[p_y_seq, objective],
         updates=updates)
     #self._get_dec_annot = theano.function(inputs = [x], outputs=[dec_init_state, annotations])
     # Add distractors
-    '''self._get_nll_distract = []
+    self._get_nll_distract = []
     self._backprop_distract = []
     if self.distract_num > 0:
       x_distracts = [T.lvector('x_distract_%d_for_backprop' % i) 
                      for i in range(self.distract_num)]
       all_annotations = [annotations]
-      input('im here ..')
       for i in range(self.distract_num):
         _, annotations_distract = self._symb_encoder(x_distracts[i])
         all_annotations.append(annotations_distract)
       annotations_with_distract = T.concatenate(all_annotations, axis=0)
       nll_d, p_y_seq_d, objective_d, updates_d = self._setup_backprop_with(
-          dec_init_state, annotations_with_distract, y, y_in_x_inds, eta, l2_reg)
+          dec_init_state, annotations_with_distract, y, y_in_x_inds,y_in_src_inds, eta, l2_reg)
       self._get_nll_distract = theano.function(
-          inputs=[x, y, y_in_x_inds] + x_distracts, outputs=nll_d,
+          inputs=[x, y, y_in_x_inds,y_in_src_inds] + x_distracts, outputs=nll_d,
           on_unused_input='warn')
       self._backprop_distract = theano.function(
-          inputs=[x, y, eta, y_in_x_inds, l2_reg] + x_distracts,
+          inputs=[x, y, eta, y_in_x_inds,y_in_src_inds, l2_reg] + x_distracts,
           outputs=[p_y_seq_d, objective_d],
-          updates=updates_d)'''
+          updates=updates_d)
 
-  def _setup_backprop_with(self, dec_init_state, annotations, y, y_in_x_inds,
-                           eta, l2_reg):
-    def decoder_recurrence(y_t, cur_y_in_x_inds, h_prev, annotations, *params):
+  def _setup_backprop_with(self, dec_init_state, annotations, y, y_in_x_inds,y_in_src_inds,eta, l2_reg):
+    def decoder_recurrence(y_t, cur_y_in_x_inds, cur_y_in_src_inds,h_prev, annotations, *params):
       h_for_write = self.spec.decoder.get_h_for_write(h_prev)
       scores = self.spec.get_attention_scores(h_for_write, annotations)
       alpha = self.spec.get_alpha(scores)
       c_t = self.spec.get_context(alpha)
       write_dist = self.spec.f_write(h_for_write, c_t, scores)
+      loc_scores = self.spec.get_local_attention_scores(h_for_write, annotations)
+      loc_alpha = self.spec.get_alpha(loc_scores)
+      loc_c_t = self.spec.get_local_context(loc_alpha,annotations)
+      loc_write_dist = self.spec.f_write(h_for_write, loc_c_t, loc_scores)
+      #self._get_write_dist = theano.function(inputs = [x_test], outputs=[loc_write_dist],on_unused_input='warn')
       #self._get_y_in_x_shape = theano.function(inputs = [cur_y_in_x_inds], outputs=[cur_y_in_x_inds])
       base_p_y_t = write_dist[y_t]
       if self.spec.attention_copying:
-        copying_p_y_t = T.dot(write_dist[self.out_vocabulary.size():],cur_y_in_x_inds[0])
-        #copying_p_y_t = T.dot(write_dist[self.out_vocabulary.size():self.out_vocabulary.size() + cur_y_in_x_inds.shape[0]],cur_y_in_x_inds)
-        p_y_t = base_p_y_t + copying_p_y_t
+        loc_copying_p_y_t = T.dot(loc_write_dist[self.out_vocabulary.size():self.out_vocabulary.size() + cur_y_in_x_inds.shape[0]],cur_y_in_x_inds)
+        #copying_p_y_t = T.dot(write_dist[self.out_vocabulary.size():],cur_y_in_src_inds[0])
+        #copying_p_y_t = T.dot(write_dist[self.out_vocabulary.size():],cur_y_in_src_inds[0])
+        p_y_t = base_p_y_t #+ loc_copying_p_y_t
       else:
         p_y_t = base_p_y_t
       h_t = self.spec.f_dec(y_t, c_t, h_prev)
       return (h_t, p_y_t)
 
     dec_results, _ = theano.scan(
-        fn=decoder_recurrence, sequences=[y, y_in_x_inds],
+        fn=decoder_recurrence, sequences=[y, y_in_x_inds,y_in_src_inds],
         outputs_info=[dec_init_state, None],
         non_sequences=[annotations] + self.spec.get_all_shared())
     p_y_seq = dec_results[1]
@@ -217,7 +234,7 @@ class Attention2HistoryModel(NeuralModel):
     for i in range(max_len): # step 1
       from ibm2 import ibm2
       
-      write_dist, c_t, alpha = self._decoder_write(annotations, h_t)
+      write_dist, c_t, alpha = self._loc_decoder_write(annotations, h_t)
       y_t = numpy.argmax(write_dist)
       p_y_t = write_dist[y_t]
       p_y_seq.append(p_y_t)
@@ -298,7 +315,7 @@ class Attention2HistoryModel(NeuralModel):
     p_y_seq = []  # Should be handy for error analysis
     p = 1
     for i in range(100):#max_len):
-      write_dist, c_t, alpha = self._decoder_write(annotations, h_t)
+      write_dist, c_t, alpha = self._loc_decoder_write(annotations, h_t)
       for j in range(len(write_dist)):
           y_t = j
           x_t = 0
@@ -358,7 +375,7 @@ class Attention2HistoryModel(NeuralModel):
         y_tok_seq = deriv.y_toks
         attention_list = deriv.attention_list
         copy_list = deriv.copy_list
-        write_dist, c_t, alpha = self._decoder_write(annotations, h_t)
+        write_dist, c_t, alpha = self._loc_decoder_write(annotations, h_t)
         #for p_y_t,y_t in enumerate(write_dist):
         #    y_tok = self.out_vocabulary.get_word(y_t)
         #    print(y_tok)

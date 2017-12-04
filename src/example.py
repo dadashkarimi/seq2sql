@@ -57,11 +57,18 @@ class Example(object):
     #    [int(x_tok == y_tok) for x_tok in self.input_vocab.word_list] + [0]
     #    for y_tok in self.y_toks
     #    ] + [[0] * (input_vocab.size() + 1)])
-    '''self.y_in_x_inds = ([
+    self.y_in_x_inds = ([
         [int(x_tok == y_tok) for x_tok in self.copy_toks] + [0]
         for y_tok in self.y_toks
-    ] + [[0] * (len(self.x_toks) + 1)])'''
-    self.y_in_x_inds = ([
+        ] + [[0] * (len(self.x_toks) + 1)])
+
+    '''self.y_in_src_inds = ([
+        [int(x_tok == y_tok) for x_tok in self.copy_toks] + [0]
+        for y_tok in self.y_toks
+        ] + [[0] * (len(self.x_toks) + 1)])'''
+
+
+    self.y_in_src_inds = ([
         [int(x_tok == y_tok) for x_tok in self.input_vocab.word_list] + [0]
         for y_tok in self.y_toks
         ] + [[0] * (input_vocab.size() + 1)])

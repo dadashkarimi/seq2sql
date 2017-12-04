@@ -106,9 +106,12 @@ class Attention2HistorySpec(Spec):
     S1 = T.dot(self.w_local_attention, self.w_history.T).T# eji = sjT * Wa * bi
     return S1
   
+  def get_local_attention_scores(self, h_for_write, annotations):
+    return T.dot(T.dot(self.w_local_attention, annotations.T).T, h_for_write) # eji = sjT * Wa * bi
+
   def get_attention_scores(self, h_for_write, annotations):
     #S1 = T.dot(T.dot(self.w_local_attention, annotations.T).T, h_for_write) # eji = sjT * Wa * bi
-    S1 = T.dot(T.dot(self.w_local_attention, self.w_history.T).T, h_for_write) # eji = sjT * Wa * bi
+    S1 = T.dot(T.dot(self.w_local_attention, T.nnet.relu(self.w_history).T).T, h_for_write) # eji = sjT * Wa * bi
     #x = T.lvector('atn_for_check') 
     #self.get_attention_for_check = theano.function(inputs=[x], outputs=[S1],on_unused_input='warn') 
     #S1 = T.dot(h_for_write,self.w_attention)  # eji = sjT * Wa * bi
@@ -126,6 +129,10 @@ class Attention2HistorySpec(Spec):
   def get_alpha(self, scores):
     alpha = T.nnet.softmax(scores)[0] # exp(eji)/sumi(exp(eji))
     return alpha
+
+  def get_local_context(self, alpha,annotations):
+    c_t = T.dot(alpha, annotations)
+    return c_t
 
   def get_context(self, alpha):
     #c_t = T.dot(T.dot(alpha,self.w_attention), annotations)

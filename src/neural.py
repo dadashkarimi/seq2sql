@@ -85,28 +85,34 @@ class NeuralModel(object):
         print 'd: %s' % ex_d.x_str
       x_inds_d_all = [ex_d.x_inds for ex_d in distractors]
       info = self._backprop_distract(
-          ex.x_inds, ex.y_inds, eta, ex.y_in_x_inds, l2_reg, *x_inds_d_all)
+          ex.x_inds, ex.y_inds, eta, ex.y_in_x_inds,ex.y_in_src_inds, l2_reg, *x_inds_d_all)
+
+      #info = self._backprop_distract(
+      #    ex.x_inds, ex.y_inds, eta, ex.y_in_x_inds, l2_reg, *x_inds_d_all)
     else:
-      info = self._backprop(ex.x_inds, ex.y_inds, eta, ex.y_in_x_inds, l2_reg)
+      info = self._backprop(ex.x_inds, ex.y_inds, eta, ex.y_in_x_inds,ex.y_in_src_inds, l2_reg) # for attn2hist
+      #info = self._backprop(ex.x_inds, ex.y_inds, eta, ex.y_in_x_inds, l2_reg)
       #dec_init_state, annotations = self._get_dec_annot(ex.x_inds)
-      h_for = self.h_for(ex.x_inds)
-      scores = self.get_scores(ex.x_inds)
-      scores_inner = self.get_scores_inner(ex.x_inds)
+      #h_for = self.h_for(ex.x_inds)
+      #scores = self.get_scores(ex.x_inds)
+      #write_dist = self._get_write_dist(ex.x_inds)
+      #scores_inner = self.get_scores_inner(ex.x_inds)
       #attentions = self.get_attention_for_check(ex.x_inds)
       #annotations = self.get_annotations(ex.x_inds)
-      print("scores size: {}".format(len(scores)))
-      print("scores size: {}".format(len(scores[0])))
+      #print("scores size: {}".format(len(scores)))
+      #print("scores size: {}".format(len(scores[0])))
       
       #print("annotations size: {}".format(len(annotations)))
       #print("annotations size: {}".format(len(annotations[0])))
-      print(h_for)
-      print(h_for.shape)
-      print("h_for_write size: {}\n".format(np.array(h_for).shape))
-      print("scores size: {}\n".format(np.array(scores).shape))
-      print("scores inner size: {}\n".format(np.array(scores_inner).shape))
+      #print(h_for)
+      #print(h_for.shape)
+      #print("h_for_write size: {}\n".format(np.array(h_for).shape))
+      #print("scores size: {}\n".format(np.array(scores).shape))
+      #print("write dist size: {}\n".format(np.array().shape))
+      #print("scores inner size: {}\n".format(np.array(scores_inner).shape))
       #print("attention size: {}\n".format(attentions.shape))
       #print(dec_init_state)
-      last_state = self._get_fwd_states(ex.x_inds)
+      #last_state = self._get_fwd_states(ex.x_inds)
       #print(last_state)
       #print("dec_size: {}, annot size: {} \n".format(dec_init_state.shape, annotations.shape))
       #print("cur_y_in_x:{}".format(len(self._get_y_in_x_shape(ex.x_inds))))
@@ -189,7 +195,8 @@ class NeuralModel(object):
       dev_nll = 0.0
       if dev_data:
         for ex in dev_data:
-          dev_nll += self._get_nll(ex.x_inds, ex.y_inds, ex.y_in_x_inds)
+          dev_nll += self._get_nll(ex.x_inds, ex.y_inds, ex.y_in_x_inds,ex.y_in_src_inds)
+          #dev_nll += self._get_nll(ex.x_inds, ex.y_inds, ex.y_in_x_inds)
       self.on_train_epoch(it)
       t1 = time.time()
       print 'NeuralModel.train(): iter %d (lr = %g): train obj = %g, dev nll = %g (%g seconds)' % (
