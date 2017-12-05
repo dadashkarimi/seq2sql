@@ -17,7 +17,7 @@
 	--dev-data geo880/geo880_test280.tsv --save-file params'''
 
 #python src/main.py \
-MP_NUM_THREADS=4 THEANO_FLAGS=-openblas flags=-lopenblas python src/main.py \
+MP_NUM_THREADS=10 THEANO_FLAGS=-openblas flags=-lopenblas python src/main.py \
 	-d 200 \
 	-i 100 \
 	-o 100 \
@@ -27,12 +27,12 @@ MP_NUM_THREADS=4 THEANO_FLAGS=-openblas flags=-lopenblas python src/main.py \
 	-c lstm \
 	-m attn2hist \
 	--stats-file result/stats_gru.json \
-	--domain overnight-publications \
+	--domain toy \
 	-k 0 \
 	--dev-seed 0 \
 	--model-seed 0 \
-	--train-data data/overnight/publications_train.tsv \
-	--dev-data data/overnight/publications_test.tsv \
+	--train-data data/toy/toy_train4.tsv \
+	--dev-data data/toy/toy_train4.tsv \
 	--train-source-file data/wikisql/train.jsonl \
 	--train-db-file data/wikisql/train.db \
 	--train-table-file data/wikisql/train.tables.jsonl  

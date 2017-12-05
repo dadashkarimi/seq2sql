@@ -72,6 +72,7 @@ class Example(object):
         [int(x_tok == y_tok) for x_tok in self.input_vocab.word_list] + [0]
         for y_tok in self.y_toks
         ] + [[0] * (input_vocab.size() + 1)])
+    
 
     #print(len(self.y_in_x_inds),len(self.y_in_x_inds[0]))
     #input('here')

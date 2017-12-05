@@ -150,6 +150,7 @@ class Attention2HistoryModel(NeuralModel):
       alpha = self.spec.get_alpha(scores)
       c_t = self.spec.get_context(alpha)
       write_dist = self.spec.f_write(h_for_write, c_t, scores)
+      
       loc_scores = self.spec.get_local_attention_scores(h_for_write, annotations)
       loc_alpha = self.spec.get_alpha(loc_scores)
       loc_c_t = self.spec.get_local_context(loc_alpha,annotations)
@@ -157,11 +158,12 @@ class Attention2HistoryModel(NeuralModel):
       #self._get_write_dist = theano.function(inputs = [x_test], outputs=[loc_write_dist],on_unused_input='warn')
       #self._get_y_in_x_shape = theano.function(inputs = [cur_y_in_x_inds], outputs=[cur_y_in_x_inds])
       base_p_y_t = write_dist[y_t]
+      base_loc_p_y_t = loc_write_dist[y_t]
       if self.spec.attention_copying:
-        loc_copying_p_y_t = T.dot(loc_write_dist[self.out_vocabulary.size():self.out_vocabulary.size() + cur_y_in_x_inds.shape[0]],cur_y_in_x_inds)
-        #copying_p_y_t = T.dot(write_dist[self.out_vocabulary.size():],cur_y_in_src_inds[0])
-        #copying_p_y_t = T.dot(write_dist[self.out_vocabulary.size():],cur_y_in_src_inds[0])
-        p_y_t = base_p_y_t #+ loc_copying_p_y_t
+        #loc_copying_p_y_t = T.dot(loc_write_dist[self.out_vocabulary.size():self.out_vocabulary.size() + cur_y_in_x_inds.shape[0]],cur_y_in_x_inds)
+        copying_p_y_t = T.dot(write_dist[self.out_vocabulary.size():],cur_y_in_src_inds[0])
+        #copying_p_y_t = T.dot(write_dist[self.out_vocabulary.size():self.out_vocabulary.size() + cur_y_in_src_inds.shape[0]],cur_y_in_src_inds)
+        p_y_t = base_p_y_t #+ copying_p_y_t
       else:
         p_y_t = base_p_y_t
       h_t = self.spec.f_dec(y_t, c_t, h_prev)
@@ -245,9 +247,12 @@ class Attention2HistoryModel(NeuralModel):
       if y_t < self.out_vocabulary.size():
         y_tok = self.out_vocabulary.get_word(y_t)
       else:
-        new_ind = y_t - self.out_vocabulary.size()
-        augmented_copy_toks = ex.copy_toks + [Vocabulary.END_OF_SENTENCE]
-        y_tok = augmented_copy_toks[new_ind]
+        #new_ind = y_t - self.out_vocabulary.size()
+        #augmented_copy_toks = ex.copy_toks + [Vocabulary.END_OF_SENTENCE] 
+        #y_tok = augmented_copy_toks[new_ind]
+        #y_t = self.out_vocabulary.get_index(y_tok)
+        new_ind = y_t -self.out_vocabulary.size()
+        y_tok = self.in_vocabulary.get_word(new_ind)
         y_t = self.out_vocabulary.get_index(y_tok)
 
       y_tok_seq.append(y_tok)
