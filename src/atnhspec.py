@@ -64,6 +64,10 @@ class Attention2HistorySpec(Spec):
     self.s = theano.shared(
         name='s',
         value=0.1 * numpy.random.uniform(-1.0, 1.0, (50,50)).astype(theano.config.floatX))
+
+    self.ann2one = theano.shared(
+        name='ann2one',
+        value=0.1 * numpy.random.uniform(-1.0, 1.0, (annotation_size,1)).astype(theano.config.floatX))
   def set_pair_stat(self,pair_stat):
       self.pair_stat = pair_stat
 
@@ -72,7 +76,7 @@ class Attention2HistorySpec(Spec):
   
   def get_local_params(self):
     return (self.fwd_encoder.params + self.bwd_encoder.params + 
-            self.decoder.params + self.writer.params + [self.w_enc_to_dec] + [self.w_history]+[self.w_local_attention]+[self.U]+[self.V]+[self.s])
+            self.decoder.params + self.writer.params + [self.w_enc_to_dec] + [self.w_history]+[self.w_local_attention]+[self.U]+[self.V]+[self.s]+[self.ann2one])
 
   def create_output_layer(self, vocab, hidden_size):
     return OutputLayer(vocab, hidden_size)
@@ -111,7 +115,8 @@ class Attention2HistorySpec(Spec):
 
   def get_attention_scores(self, h_for_write, annotations):
     #S1 = T.dot(T.dot(self.w_local_attention, annotations.T).T, h_for_write) # eji = sjT * Wa * bi
-    S1 = T.dot(T.dot(self.w_local_attention, T.nnet.relu(self.w_history).T).T, h_for_write) # eji = sjT * Wa * bi
+    S1 = T.dot(T.dot(self.w_local_attention, self.w_history.T).T, h_for_write) # eji = sjT * Wa * bi
+    #S1= T.dot(T.dot(self.w_history,T.dot(annotations.T,annotations)),self.ann2one)
     #x = T.lvector('atn_for_check') 
     #self.get_attention_for_check = theano.function(inputs=[x], outputs=[S1],on_unused_input='warn') 
     #S1 = T.dot(h_for_write,self.w_attention)  # eji = sjT * Wa * bi
@@ -134,9 +139,9 @@ class Attention2HistorySpec(Spec):
     c_t = T.dot(alpha, annotations)
     return c_t
 
-  def get_context(self, alpha):
-    #c_t = T.dot(T.dot(alpha,self.w_attention), annotations)
-    c_t = T.dot(alpha, self.w_history)
+  def get_context(self, alpha,annotations):
+    c_t = T.dot(alpha, annotations)
+    #c_t = T.dot(alpha, self.w_history)
     return c_t
 
   def f_write(self, h_t, c_t, scores):

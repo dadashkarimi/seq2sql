@@ -68,10 +68,11 @@ class Example(object):
         ] + [[0] * (len(self.x_toks) + 1)])'''
 
 
+
     self.y_in_src_inds = ([
-        [int(x_tok == y_tok) for x_tok in self.input_vocab.word_list] + [0]
+        [int(x_tok == y_tok) for x_tok in self.input_vocab.word_list]
         for y_tok in self.y_toks
-        ] + [[0] * (input_vocab.size() + 1)])
+        ] + [[0] * (input_vocab.size())])
     
 
     #print(len(self.y_in_x_inds),len(self.y_in_x_inds[0]))
