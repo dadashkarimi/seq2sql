@@ -16,7 +16,7 @@ from vocabulary import Vocabulary
 CLIP_THRESH = 3.0  # Clip gradient if norm is larger than this
 NESTEROV_MU = 0.95  # mu for Nesterov momentum
 
-class NeuralModel(object):
+class NeuralModel2(object):
   """A generic continuous neural sequence-to-sequence model.
 
   Implementing classes must implement the following functions:
@@ -90,8 +90,8 @@ class NeuralModel(object):
       #info = self._backprop_distract(
       #    ex.x_inds, ex.y_inds, eta, ex.y_in_x_inds, l2_reg, *x_inds_d_all)
     else:
-      #info = self._backprop(ex.x_inds, ex.y_inds, eta, ex.y_in_x_inds,ex.y_in_src_inds, l2_reg) # for attn2hist
-      info = self._backprop(ex.x_inds, ex.y_inds, eta, ex.y_in_x_inds, l2_reg)
+      info = self._backprop(ex.x_inds, ex.y_inds, eta, ex.y_in_x_inds,ex.y_in_src_inds, l2_reg) # for attn2hist
+      #info = self._backprop(ex.x_inds, ex.y_inds, eta, ex.y_in_x_inds, l2_reg)
       #dec_init_state, annotations = self._get_dec_annot(ex.x_inds)
       #h_for = self.h_for(ex.x_inds)
       #scores = self.get_scores(ex.x_inds)
@@ -195,8 +195,8 @@ class NeuralModel(object):
       dev_nll = 0.0
       if dev_data:
         for ex in dev_data:
-          #dev_nll += self._get_nll(ex.x_inds, ex.y_inds, ex.y_in_x_inds,ex.y_in_src_inds)
-          dev_nll += self._get_nll(ex.x_inds, ex.y_inds, ex.y_in_x_inds)
+          dev_nll += self._get_nll(ex.x_inds, ex.y_inds, ex.y_in_x_inds,ex.y_in_src_inds)
+          #dev_nll += self._get_nll(ex.x_inds, ex.y_inds, ex.y_in_x_inds)
       self.on_train_epoch(it)
       t1 = time.time()
       print 'NeuralModel.train(): iter %d (lr = %g): train obj = %g, dev nll = %g (%g seconds)' % (

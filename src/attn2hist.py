@@ -13,10 +13,10 @@ import sys
 
 from atnhspec import Attention2HistorySpec
 from derivation import Derivation
-from neural import NeuralModel, CLIP_THRESH, NESTEROV_MU
+from neural2 import NeuralModel2, CLIP_THRESH, NESTEROV_MU
 from vocabulary import Vocabulary
 
-class Attention2HistoryModel(NeuralModel):
+class Attention2HistoryModel(NeuralModel2):
   """An encoder-decoder RNN model."""
   def setup(self):
     self.setup_encoder()
