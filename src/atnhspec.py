@@ -53,21 +53,11 @@ class Attention2HistorySpec(Spec):
     self.w_history = theano.shared(
         name='w_history',
         value=0.1 * numpy.random.uniform(-1.0, 1.0, (self.in_vocabulary.size(),annotation_size)).astype(theano.config.floatX))
+    
+    self.w_co = theano.shared(
+        name='w_co',
+        value=0.1 * numpy.random.uniform(-1.0, 1.0, (self.in_vocabulary.size())).astype(theano.config.floatX))
 
-    self.U = theano.shared(
-        name='U',
-        value=0.1 * numpy.random.uniform(-1.0, 1.0, (self.out_vocabulary.size(),50)).astype(theano.config.floatX))
-    self.V = theano.shared(
-        name='V',
-        value=0.1 * numpy.random.uniform(-1.0, 1.0, (50,self.in_vocabulary.size())).astype(theano.config.floatX))
-
-    self.s = theano.shared(
-        name='s',
-        value=0.1 * numpy.random.uniform(-1.0, 1.0, (50,50)).astype(theano.config.floatX))
-
-    self.ann2one = theano.shared(
-        name='ann2one',
-        value=0.1 * numpy.random.uniform(-1.0, 1.0, (annotation_size,1)).astype(theano.config.floatX))
   def set_pair_stat(self,pair_stat):
       self.pair_stat = pair_stat
 
@@ -76,7 +66,7 @@ class Attention2HistorySpec(Spec):
   
   def get_local_params(self):
     return (self.fwd_encoder.params + self.bwd_encoder.params + 
-            self.decoder.params + self.writer.params + [self.w_enc_to_dec] + [self.w_history]+[self.w_local_attention]+[self.U]+[self.V]+[self.s]+[self.ann2one])
+            self.decoder.params + self.writer.params + [self.w_enc_to_dec] + [self.w_history]+[self.w_local_attention]+[self.w_co])
 
   def create_output_layer(self, vocab, hidden_size):
     return OutputLayer(vocab, hidden_size)
@@ -114,22 +104,13 @@ class Attention2HistorySpec(Spec):
     return T.dot(T.dot(self.w_local_attention, annotations.T).T, h_for_write) # eji = sjT * Wa * bi
 
   def get_attention_scores(self, h_for_write, annotations):
-    #S1 = T.dot(T.dot(self.w_local_attention, annotations.T).T, h_for_write) # eji = sjT * Wa * bi
-    S1 = T.dot(T.dot(self.w_local_attention, self.w_history.T).T, h_for_write) # eji = sjT * Wa * bi
-    #S1= T.dot(T.dot(self.w_history,T.dot(annotations.T,annotations)),self.ann2one)
-    #x = T.lvector('atn_for_check') 
-    #self.get_attention_for_check = theano.function(inputs=[x], outputs=[S1],on_unused_input='warn') 
-    #S1 = T.dot(h_for_write,self.w_attention)  # eji = sjT * Wa * bi
-    #S2 = T.dot(S1.T, h_for_write) # eji = sjT * Wa * bi
-    '''H1 = T.nnet.relu(T.dot(self.w_history,annotations.T)) # eji = sjT * Wa * Wh * bi
-    H2 = T.nnet.relu(T.dot(self.V,H1))
-    H3 = T.nnet.relu(T.dot(self.s,H2))
-    H4 = T.dot(self.U,H3)
-    H5 = T.dot(self.w_attention,H4).T # eji = sjT * Wa * Wh * bi
-    S2 = T.dot(H5,h_for_write)'''
-    #z_t = T.nnet.sigmoid(T.dot(annotations,annotations.T))
-    #return T.nnet.sigmoid(S2)+S1
-    return S1
+    S0 = T.dot(T.dot(self.w_local_attention, annotations.T).T, h_for_write)
+    S1 = T.dot(T.dot(self.w_local_attention, T.tanh(self.w_history.T)).T, h_for_write)
+    loc_scores = S0
+    loc_alpha = self.get_alpha(loc_scores)
+    loc_c_t = self.get_local_context(loc_alpha,annotations)
+    z_t = T.nnet.sigmoid(T.dot(loc_c_t,self.w_history.T))
+    return T.concatenate([z_t*S1,S0])
 
   def get_alpha(self, scores):
     alpha = T.nnet.softmax(scores)[0] # exp(eji)/sumi(exp(eji))

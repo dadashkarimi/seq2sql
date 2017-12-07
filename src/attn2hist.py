@@ -69,6 +69,8 @@ class Attention2HistoryModel(NeuralModel):
     
 
 
+    #self.get_x = theano.function(
+    #    inputs=[annotations], outputs=[x],on_unused_input='warn')
     self.h_for = theano.function(
         inputs=[x], outputs=[h_for_write])
     self.get_scores = theano.function(inputs=[x], outputs=[scores])
@@ -105,7 +107,7 @@ class Attention2HistoryModel(NeuralModel):
     
     self._decoder_write = theano.function(inputs=[annotations, h_prev], outputs=[write_dist, c_t, alpha],on_unused_input='warn')
     
-    self._loc_decoder_write = theano.function(inputs=[annotations, h_prev], outputs=[loc_write_dist, loc_c_t, loc_alpha])#,on_unused_input='warn')
+    self._loc_decoder_write = theano.function(inputs=[annotations, h_prev], outputs=[loc_write_dist, loc_c_t, loc_alpha],on_unused_input='warn')#,on_unused_input='warn')
     
 
   def setup_backprop(self):
@@ -125,8 +127,7 @@ class Attention2HistoryModel(NeuralModel):
     self._backprop = theano.function(
         inputs=[x, y, eta, y_in_x_inds,y_in_src_inds, l2_reg],
         outputs=[p_y_seq, objective],
-        updates=updates)
-    #self._get_dec_annot = theano.function(inputs = [x], outputs=[dec_init_state, annotations])
+        updates=updates,on_unused_input='warn')
     # Add distractors
     self._get_nll_distract = []
     self._backprop_distract = []
@@ -149,7 +150,7 @@ class Attention2HistoryModel(NeuralModel):
           updates=updates_d)
 
   def _setup_backprop_with(self, dec_init_state, annotations, y, y_in_x_inds,y_in_src_inds,eta, l2_reg):
-    def decoder_recurrence(y_t, cur_y_in_x_inds, cur_y_in_src_inds,h_prev, annotations, *params):
+    def local_decoder_recurrence(y_t, cur_y_in_x_inds,h_prev, annotations, *params):
       h_for_write = self.spec.decoder.get_h_for_write(h_prev)
       
       loc_scores = self.spec.get_local_attention_scores(h_for_write, annotations)
@@ -157,31 +158,42 @@ class Attention2HistoryModel(NeuralModel):
       loc_c_t = self.spec.get_local_context(loc_alpha,annotations)
       loc_write_dist = self.spec.f_write(h_for_write, loc_c_t, loc_scores)
      
-      scores = self.spec.get_attention_scores(h_for_write, annotations)
-      alpha = self.spec.get_alpha(scores)
-      c_t = loc_c_t #self.spec.get_context(alpha,annotations)
-      write_dist = self.spec.f_write(h_for_write, c_t, scores)
-     #self._get_write_dist = theano.function(inputs = [x_test], outputs=[loc_write_dist],on_unused_input='warn')
-      #self._get_y_in_x_shape = theano.function(inputs = [cur_y_in_x_inds], outputs=[cur_y_in_x_inds])
       base_loc_p_y_t = loc_write_dist[y_t]
-      base_p_y_t = write_dist[y_t]
       if self.spec.attention_copying:
         loc_copying_p_y_t = T.dot(loc_write_dist[self.out_vocabulary.size():self.out_vocabulary.size() + cur_y_in_x_inds.shape[0]],cur_y_in_x_inds)
-        #copying_p_y_t = T.dot(write_dist[self.out_vocabulary.size():],cur_y_in_src_inds[0])
-        copying_p_y_t = T.dot(write_dist[self.out_vocabulary.size():],cur_y_in_src_inds)
-        z_t= T.nnet.sigmoid(copying_p_y_t)
-        #copying_p_y_t = T.dot(write_dist[self.out_vocabulary.size():self.out_vocabulary.size() + cur_y_in_src_inds.shape[0]],cur_y_in_src_inds)
-        p_y_t = base_loc_p_y_t + z_t*copying_p_y_t + loc_copying_p_y_t
+        p_y_t =  base_loc_p_y_t + loc_copying_p_y_t
       else:
-        p_y_t = base_p_y_t
+        p_y_t = base_loc_p_y_t 
+      h_t = self.spec.f_dec(y_t, loc_c_t, h_prev)
+      return (h_t, p_y_t)
+
+    def history_decoder_recurrence(y_t, cur_y_in_x_inds, cur_y_in_src_inds,h_prev, annotations, *params):
+      h_for_write = self.spec.decoder.get_h_for_write(h_prev)
+      loc_scores = self.spec.get_local_attention_scores(h_for_write, annotations)
+      loc_alpha = self.spec.get_alpha(loc_scores)
+      loc_c_t = self.spec.get_local_context(loc_alpha,annotations)
+      scores = self.spec.get_attention_scores(h_for_write, annotations)
+      alpha = self.spec.get_alpha(scores)
+      c_t = loc_c_t
+      z_t = T.nnet.sigmoid(T.dot(loc_c_t,self.spec.w_history.T))
+      write_dist = self.spec.f_write(h_for_write, c_t, scores)
+      base_p_y_t = write_dist[y_t]
+      if self.spec.attention_copying:
+        loc_copying_p_y_t = T.dot(write_dist[-cur_y_in_x_inds.shape[0]:],cur_y_in_x_inds)
+        copying_p_y_t = T.dot(write_dist[self.out_vocabulary.size():self.out_vocabulary.size()+cur_y_in_src_inds.shape[0]],cur_y_in_src_inds)
+        p_y_t =  base_p_y_t + loc_copying_p_y_t + z_t[y_t]*copying_p_y_t
+      else:
+        p_y_t = base_p_y_t 
       h_t = self.spec.f_dec(y_t, c_t, h_prev)
       return (h_t, p_y_t)
 
-    dec_results, _ = theano.scan(
-        fn=decoder_recurrence, sequences=[y, y_in_x_inds,y_in_src_inds],
-        outputs_info=[dec_init_state, None],
+    loc_dec_results, _ = theano.scan(fn=local_decoder_recurrence, sequences=[y, y_in_x_inds],outputs_info=[dec_init_state, None],
         non_sequences=[annotations] + self.spec.get_all_shared())
-    p_y_seq = dec_results[1]
+    hist_dec_results, _ = theano.scan(fn=history_decoder_recurrence, sequences=[y, y_in_x_inds,y_in_src_inds],outputs_info=[dec_init_state, None],
+            non_sequences=[annotations] + self.spec.get_all_shared())
+
+    #p_y_seq = loc_dec_results[1]
+    p_y_seq = hist_dec_results[1]
     log_p_y = T.sum(T.log(p_y_seq))
     nll = -log_p_y
     
@@ -244,7 +256,7 @@ class Attention2HistoryModel(NeuralModel):
     for i in range(max_len): # step 1
       from ibm2 import ibm2
       
-      write_dist, c_t, alpha = self._loc_decoder_write(annotations, h_t)
+      write_dist, c_t, alpha = self._decoder_write(annotations, h_t)
       y_t = numpy.argmax(write_dist)
       p_y_t = write_dist[y_t]
       p_y_seq.append(p_y_t)
@@ -254,21 +266,15 @@ class Attention2HistoryModel(NeuralModel):
         break
       if y_t < self.out_vocabulary.size():
         y_tok = self.out_vocabulary.get_word(y_t)
-        print(y_tok)
-        print('0')
-      elif y_t>= self.out_vocabulary.size() and y_t< self.out_vocabulary.size() + self.in_vocabulary.size():
+      elif y_t>=self.out_vocabulary.size() and y_t<self.out_vocabulary.size()+self.in_vocabulary.size():
         new_ind = y_t -self.out_vocabulary.size()
         y_tok = self.in_vocabulary.get_word(new_ind)
         y_t = self.out_vocabulary.get_index(y_tok)
-        print(y_tok)
-        print('1')
       else:
-        new_ind = y_t - self.out_vocabulary.size()
-        augmented_copy_toks = ex.copy_toks + [Vocabulary.END_OF_SENTENCE] 
+        new_ind = y_t - (self.out_vocabulary.size()+self.in_vocabulary.size())
+        augmented_copy_toks = ex.copy_toks + [Vocabulary.END_OF_SENTENCE]
         y_tok = augmented_copy_toks[new_ind]
         y_t = self.out_vocabulary.get_index(y_tok)
-        print(y_tok)
-        print('2')
 
       y_tok_seq.append(y_tok)
       h_t = self._decoder_step(y_t, c_t, h_t)
