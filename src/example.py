@@ -50,33 +50,13 @@ class Example(object):
         self.copy_toks = self.copy_toks[::-1]
     else:
       self.copy_toks = [lexicon.strip_unk(w) for w in self.x_toks]
-    #print(self.input_vocab.word_list)
-    #print('1',[[int(x_tok == y_tok) for x_tok in self.copy_toks] +[5] for y_tok in self.y_toks]+[[0] * (len(self.x_toks) + 1)])
-    #print('2',len([[0] * (input_vocab.size() + 1)][0]),len([[int(x_tok == y_tok) for x_tok in self.input_vocab.word_list] + [0] for y_tok in self.y_toks][0]))
-    #print('2',[
-    #    [int(x_tok == y_tok) for x_tok in self.input_vocab.word_list] + [0]
-    #    for y_tok in self.y_toks
-    #    ] + [[0] * (input_vocab.size() + 1)])
+
     self.y_in_x_inds = ([
         [int(x_tok == y_tok) for x_tok in self.copy_toks] + [0]
         for y_tok in self.y_toks
         ] + [[0] * (len(self.x_toks) + 1)])
 
-    '''self.y_in_src_inds = ([
-        [int(x_tok == y_tok) for x_tok in self.copy_toks] + [0]
-        for y_tok in self.y_toks
-        ] + [[0] * (len(self.x_toks) + 1)])'''
-
-
-
     self.y_in_src_inds = ([
         [int(x_tok == y_tok) for x_tok in self.input_vocab.word_list]
         for y_tok in self.y_toks
         ] + [[0] * (input_vocab.size())])
-    
-
-    #print(len(self.y_in_x_inds),len(self.y_in_x_inds[0]))
-    #input('here')
-    #print len(self.y_in_x_inds),len(self.y_in_x_inds[0])
-    #input('here ..')
-      #  Make sure to add EOS tags for both x and y

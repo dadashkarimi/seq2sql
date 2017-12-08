@@ -175,13 +175,15 @@ class Attention2HistoryModel(NeuralModel2):
       scores = self.spec.get_attention_scores(h_for_write, annotations)
       alpha = self.spec.get_alpha(scores)
       c_t = loc_c_t
-      z_t = T.nnet.sigmoid(T.dot(loc_c_t,self.spec.w_history.T))
+      z_t = T.nnet.sigmoid(T.dot(loc_c_t,self.spec.w_zt.T)+T.dot(h_for_write,self.spec.u_zt.T))
+      #z_t = T.nnet.sigmoid(T.dot(loc_c_t,self.spec.w_history.T))
       write_dist = self.spec.f_write(h_for_write, c_t, scores)
       base_p_y_t = write_dist[y_t]
       if self.spec.attention_copying:
         loc_copying_p_y_t = T.dot(write_dist[-cur_y_in_x_inds.shape[0]:],cur_y_in_x_inds)
         copying_p_y_t = T.dot(write_dist[self.out_vocabulary.size():self.out_vocabulary.size()+cur_y_in_src_inds.shape[0]],cur_y_in_src_inds)
         p_y_t =  base_p_y_t + loc_copying_p_y_t + z_t[y_t]*copying_p_y_t
+        #p_y_t =  base_p_y_t + loc_copying_p_y_t + 0.5*copying_p_y_t
       else:
         p_y_t = base_p_y_t 
       h_t = self.spec.f_dec(y_t, c_t, h_prev)
@@ -192,8 +194,8 @@ class Attention2HistoryModel(NeuralModel2):
     hist_dec_results, _ = theano.scan(fn=history_decoder_recurrence, sequences=[y, y_in_x_inds,y_in_src_inds],outputs_info=[dec_init_state, None],
             non_sequences=[annotations] + self.spec.get_all_shared())
 
-    #p_y_seq = loc_dec_results[1]
-    p_y_seq = hist_dec_results[1]
+    #p_y_seq = loc_dec_results[1] #Liang's method
+    p_y_seq = hist_dec_results[1] # our method
     log_p_y = T.sum(T.log(p_y_seq))
     nll = -log_p_y
     
@@ -252,11 +254,15 @@ class Attention2HistoryModel(NeuralModel2):
     t,a = self.spec.em_model
     #s_total[e] += t[(e, f)] * a[(i, j, l_e, l_f)]
     l_f =0
-
+    print(ex.x_str)
     for i in range(max_len): # step 1
       from ibm2 import ibm2
       
       write_dist, c_t, alpha = self._decoder_write(annotations, h_t)
+      #print('first:')
+      #for j in range(self.out_vocabulary.size()):
+      # print(j,self.out_vocabulary.get_word(j),write_dist[j])
+
       y_t = numpy.argmax(write_dist)
       p_y_t = write_dist[y_t]
       p_y_seq.append(p_y_t)
@@ -266,15 +272,33 @@ class Attention2HistoryModel(NeuralModel2):
         break
       if y_t < self.out_vocabulary.size():
         y_tok = self.out_vocabulary.get_word(y_t)
-      elif y_t>=self.out_vocabulary.size() and y_t<self.out_vocabulary.size()+self.in_vocabulary.size():
+      elif y_t>=self.out_vocabulary.size() and y_t<(self.out_vocabulary.size()+self.in_vocabulary.size()):
         new_ind = y_t -self.out_vocabulary.size()
         y_tok = self.in_vocabulary.get_word(new_ind)
+        print('----> second:')
+        print(y_tok,write_dist[y_t])
         y_t = self.out_vocabulary.get_index(y_tok)
       else:
         new_ind = y_t - (self.out_vocabulary.size()+self.in_vocabulary.size())
         augmented_copy_toks = ex.copy_toks + [Vocabulary.END_OF_SENTENCE]
         y_tok = augmented_copy_toks[new_ind]
+        print('---> third:')
+        print(y_tok,write_dist[y_t])
         y_t = self.out_vocabulary.get_index(y_tok)
+      # liang
+      '''if y_t == Vocabulary.END_OF_SENTENCE_INDEX:
+        l_f = i # length of the predicted sequence
+        break
+      if y_t < self.out_vocabulary.size():
+        y_tok = self.out_vocabulary.get_word(y_t)
+      else:
+        new_ind = y_t - (self.out_vocabulary.size())
+        augmented_copy_toks = ex.copy_toks + [Vocabulary.END_OF_SENTENCE]
+        y_tok = augmented_copy_toks[new_ind]
+        y_t = self.out_vocabulary.get_index(y_tok)'''
+
+
+
 
       y_tok_seq.append(y_tok)
       h_t = self._decoder_step(y_t, c_t, h_t)
