@@ -27,12 +27,12 @@ MP_NUM_THREADS=10 THEANO_FLAGS=-openblas flags=-lopenblas python src/main.py \
 	-c lstm \
 	-m attn2hist \
 	--stats-file result/stats_gru.json \
-	--domain toy \
+	--domain overnight-housing \
 	-k 0 \
 	--dev-seed 0 \
 	--model-seed 0 \
-	--train-data data/toy/toy_train50.tsv \
-	--dev-data data/toy/toy_test50.tsv \
+	--train-data data/overnight/housing_train.tsv \
+	--dev-data data/overnight/housing_test.tsv \
 	--train-source-file data/wikisql/train.jsonl \
 	--train-db-file data/wikisql/train.db \
 	--train-table-file data/wikisql/train.tables.jsonl  
