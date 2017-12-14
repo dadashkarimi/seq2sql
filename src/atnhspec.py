@@ -41,6 +41,10 @@ class Attention2HistorySpec(Spec):
         self.out_vocabulary.size(), False)
     self.writer = self.create_output_layer(self.out_vocabulary,
                                            self.hidden_size + annotation_size)
+    self.w_local_history = theano.shared(
+        name='w_local_history',
+        value=0.1 * numpy.random.uniform(-1.0, 1.0, (self.hidden_size, annotation_size)).astype(theano.config.floatX))
+
     self.w_local_attention = theano.shared(
         name='w_local_attention',
         value=0.1 * numpy.random.uniform(-1.0, 1.0, (self.hidden_size, annotation_size)).astype(theano.config.floatX))
@@ -62,6 +66,15 @@ class Attention2HistorySpec(Spec):
     self.w_co = theano.shared(
         name='w_co',
         value=0.1 * numpy.random.uniform(-1.0, 1.0, (self.in_vocabulary.size())).astype(theano.config.floatX))
+    self.r_t = theano.shared(
+        name='r_t',
+        value=0.1 * numpy.random.uniform(0.0, 1.0, (self.out_vocabulary.size())).astype(theano.config.floatX))
+
+    self.alpha = theano.shared(
+        name='alpha',
+        value=0.1 * numpy.random.uniform(0.0, 1.0, (1)).astype(theano.config.floatX))
+
+
 
   def set_pair_stat(self,pair_stat):
       self.pair_stat = pair_stat
@@ -71,7 +84,7 @@ class Attention2HistorySpec(Spec):
   
   def get_local_params(self):
     return (self.fwd_encoder.params + self.bwd_encoder.params + 
-            self.decoder.params + self.writer.params + [self.w_enc_to_dec] + [self.w_history]+[self.w_local_attention]+[self.w_co]+[self.w_zt]+[self.u_zt])
+            self.decoder.params + self.writer.params + [self.w_enc_to_dec] + [self.w_history]+[self.w_local_attention]+[self.w_co]+[self.w_zt]+[self.u_zt]+[self.w_local_history]+[self.r_t]+[self.alpha])
 
   def create_output_layer(self, vocab, hidden_size):
     return OutputLayer(vocab, hidden_size)
@@ -109,14 +122,31 @@ class Attention2HistorySpec(Spec):
     return T.dot(T.dot(self.w_local_attention, annotations.T).T, h_for_write) # eji = sjT * Wa * bi
 
   def get_attention_scores(self, h_for_write, annotations):
-    S0 = T.dot(T.dot(self.w_local_attention, annotations.T).T, h_for_write)
-    S1 = T.dot(T.dot(self.w_local_attention, T.tanh(self.w_history.T)).T, h_for_write)
-    loc_scores = S0
+    loc_scores = T.dot(T.dot(self.w_local_attention, annotations.T).T, h_for_write)
     loc_alpha = self.get_alpha(loc_scores)
     loc_c_t = self.get_local_context(loc_alpha,annotations)
-    #z_t = T.nnet.sigmoid(T.dot(input_t, self.wz) + T.dot(h_prev, self.uz))
     z_t = T.nnet.sigmoid(T.dot(loc_c_t,self.w_zt.T)+T.dot(h_for_write,self.u_zt.T))
-    return T.concatenate([z_t,S0])
+    
+    S0 = loc_scores
+    S1 = z_t*T.dot(T.dot(self.w_local_attention, T.tanh(self.w_history.T)).T, h_for_write) #f1
+    S2 = z_t*T.tanh(T.dot(T.dot(self.w_local_attention, T.tanh(self.w_history.T)).T, h_for_write)+T.dot(loc_c_t,self.w_history.T))
+    S3 = z_t*T.tanh(T.dot(T.dot(self.w_local_attention, self.w_history.T).T, h_for_write)+T.dot(loc_c_t,self.w_history.T))
+    S4 = z_t*T.tanh(T.dot(T.dot(self.w_local_history, self.w_history.T).T, h_for_write)+T.dot(loc_c_t,self.w_history.T))
+    S5 = z_t*T.nnet.sigmoid(T.dot(T.dot(self.w_local_history, self.w_history.T).T, h_for_write)+T.dot(loc_c_t,self.w_history.T)) #f3
+    S6 = z_t*T.nnet.sigmoid(T.dot(T.dot(self.w_local_history, self.w_history.T).T, h_for_write)) #f2
+    S7 = T.nnet.sigmoid(T.dot(self.u_zt, h_for_write))
+    S8 = z_t*T.tanh(T.dot(self.u_zt, h_for_write))#f5
+    S9 = z_t*T.nnet.sigmoid(T.dot(self.u_zt, h_for_write))#f4
+    S10= T.tanh(T.dot(self.u_zt, h_for_write))
+    S11 = z_t*T.dot(T.dot(self.w_local_history, self.w_history.T).T, h_for_write)+(1-z_t)*T.dot(loc_c_t,self.w_history.T)
+    S12 = -1*S5
+    f1 = z_t*T.dot(T.dot(self.w_local_attention, T.tanh(self.w_history.T)).T, h_for_write) #f1
+    f2 = z_t*T.nnet.sigmoid(T.dot(T.dot(self.w_local_history, self.w_history.T).T, h_for_write)) #f2
+    f3 = z_t*T.nnet.sigmoid(T.dot(T.dot(self.w_local_history, self.w_history.T).T, h_for_write)+T.dot(loc_c_t,self.w_history.T)) #f3
+    f4 = z_t*T.nnet.sigmoid(T.dot(self.u_zt, h_for_write))#f4
+    f5 = z_t*T.tanh(T.dot(self.u_zt, h_for_write))#f5
+    f6 = z_t*T.nnet.sigmoid(T.dot(T.dot(self.w_local_history, self.w_history.T).T, h_for_write))+(1-z_t)*T.dot(loc_c_t,self.w_history.T) #f6
+    return T.concatenate([f6,S0])
 
   def get_alpha(self, scores):
     alpha = T.nnet.softmax(scores)[0] # exp(eji)/sumi(exp(eji))

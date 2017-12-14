@@ -175,15 +175,29 @@ class Attention2HistoryModel(NeuralModel2):
       scores = self.spec.get_attention_scores(h_for_write, annotations)
       alpha = self.spec.get_alpha(scores)
       c_t = loc_c_t
-      z_t = T.nnet.sigmoid(T.dot(loc_c_t,self.spec.w_zt.T)+T.dot(h_for_write,self.spec.u_zt.T))
-      #z_t = T.nnet.sigmoid(T.dot(loc_c_t,self.spec.w_history.T))
       write_dist = self.spec.f_write(h_for_write, c_t, scores)
+      
+      z_t = T.nnet.sigmoid(T.dot(loc_c_t,self.spec.w_zt.T).T+T.dot(h_for_write,self.spec.u_zt.T).T)
+      z2_t = T.nnet.sigmoid(T.concatenate([T.concatenate([self.spec.r_t,T.dot(loc_c_t,self.spec.w_zt.T)+T.dot(h_for_write,self.spec.u_zt.T)]),loc_scores]))
+      z3_t = T.nnet.sigmoid(write_dist) # zt
+      r_t = self.spec.r_t[y_t]
       base_p_y_t = write_dist[y_t]
       if self.spec.attention_copying:
         loc_copying_p_y_t = T.dot(write_dist[-cur_y_in_x_inds.shape[0]:],cur_y_in_x_inds)
         copying_p_y_t = T.dot(write_dist[self.out_vocabulary.size():self.out_vocabulary.size()+cur_y_in_src_inds.shape[0]],cur_y_in_src_inds)
-        p_y_t =  base_p_y_t + loc_copying_p_y_t + z_t[y_t]*copying_p_y_t
-        #p_y_t =  base_p_y_t + loc_copying_p_y_t + 0.5*copying_p_y_t
+        pb = base_p_y_t + loc_copying_p_y_t
+        p0 =  base_p_y_t + loc_copying_p_y_t + z_t[y_t]*copying_p_y_t
+        p1 =  base_p_y_t + r_t*loc_copying_p_y_t +(1-r_t)*z_t[y_t]*copying_p_y_t
+        p2 =  base_p_y_t + (1-z_t[y_t])*loc_copying_p_y_t+z_t[y_t]*copying_p_y_t
+        p3 =  base_p_y_t + self.spec.alpha*loc_copying_p_y_t+(1-self.spec.alpha)*z_t[y_t]*copying_p_y_t
+        p4 =  base_p_y_t + self.spec.alpha*loc_copying_p_y_t+(1-self.spec.alpha)*copying_p_y_t
+        #p5 =  base_p_y_t + r_t[y_t]*loc_copying_p_y_t + (1-r_t[y_t])*copying_p_y_t
+        p6 =  base_p_y_t + loc_copying_p_y_t + z2_t[y_t]*copying_p_y_t
+        p7 =  base_p_y_t + (1-z2_t[y_t])*loc_copying_p_y_t + z2_t[y_t]*copying_p_y_t
+        p8 =  base_p_y_t + loc_copying_p_y_t + z3_t[y_t]*copying_p_y_t
+        p9 =  base_p_y_t + (1-z3_t[y_t])*loc_copying_p_y_t + z3_t[y_t]*copying_p_y_t
+        p10 =  base_p_y_t + loc_copying_p_y_t + copying_p_y_t
+        p_y_t = p10
       else:
         p_y_t = base_p_y_t 
       h_t = self.spec.f_dec(y_t, c_t, h_prev)

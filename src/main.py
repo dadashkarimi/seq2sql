@@ -97,7 +97,7 @@ def _parse_args():
   parser.add_argument('--beam-size', '-k', type=int, default=0,
                       help='Use beam search with given beam size (default is greedy).')
   parser.add_argument('--domain', default=None,
-                      help='Domain for augmentation and evaluation (options: [geoquery,atis,overnight,seq2sql,toy-${domain}])')
+                      help='Domain for augmentation and evaluation (options: [geoquery,atis,overnight,seq2sql,toy-${domain},mt])')
   parser.add_argument('--use-lexicon', action='store_true',
                       help='Use a lexicon for copying (should also supply --domain)')
   parser.add_argument('--augment', '-a',
@@ -187,12 +187,12 @@ def configure_theano():
 
 def load_dataset(filename, domain):
   dataset = []
-  if OPTIONS.domain=='seq2sql':
-      build_sql_train(filename)
+  #if OPTIONS.domain=='seq2sql':
+  #    build_sql_train(filename)
   with open(filename) as f:
     for line in f:
       x, y = line.rstrip('\n').split('\t')
-      if domain:
+      if domain and OPTIONS.domain!='seq2sql' and OPTIONS.domain!='mt':
         y = domain.preprocess_lf(y)
       dataset.append((x, y))
   return dataset
@@ -339,7 +339,10 @@ def evaluate(name, model, dataset, domain=None):
   x_len_list = []
   y_len_list = []
 
-  if domain:
+  if OPTIONS.domain=='seq2sql' or OPTIONS.domain=='mt':
+    derivs = [decode(model, ex)[0] for ex in dataset]
+    denotation_correct_list = None
+  elif domain:
     all_derivs = [decode(model, ex) for ex in dataset]
     true_answers = [ex.y_str for ex in dataset]
     derivs, denotation_correct_list = domain.compare_answers(true_answers, all_derivs)

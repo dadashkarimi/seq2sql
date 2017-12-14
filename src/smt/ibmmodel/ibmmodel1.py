@@ -24,7 +24,7 @@ def _train(corpus, loop_count=100):
         for f in fs:
             f_keys.add(f)
     # default value provided as uniform probability)
-    t = collections.defaultdict(_constant_factory(D(1.0/len(f_keys))))
+    t = collections.defaultdict(_constant_factory(D(1.0/(0.0001+len(f_keys)))))
     
     # loop
     for i in range(loop_count):
